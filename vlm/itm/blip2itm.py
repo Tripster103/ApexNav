@@ -1,3 +1,4 @@
+import os
 from typing import Any, Optional
 
 import numpy as np
@@ -67,7 +68,7 @@ class BLIP2ITM:
 
 
 class BLIP2ITMClient:
-    def __init__(self, port: int = 12182):
+    def __init__(self, port: int = int(os.environ.get("BLIP2_PORT", 12182))):
         self.url = f"http://localhost:{port}/blip2itm"
 
     def cosine(self, image: np.ndarray, txt: str) -> float:

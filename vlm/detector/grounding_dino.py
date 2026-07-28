@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 import numpy as np
@@ -81,7 +82,7 @@ class GroundingDINO:
 
 
 class GroundingDINOClient:
-    def __init__(self, port: int = 12181):
+    def __init__(self, port: int = int(os.environ.get("GDINO_PORT", 12181))):
         self.url = f"http://localhost:{port}/gdino"
 
     def predict(

@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import numpy as np
 from vlm.coco_classes import COCO_CLASSES
@@ -7,10 +9,10 @@ from vlm.detector.grounding_dino import GroundingDINOClient
 from vlm.itm.blip2itm import BLIP2ITMClient
 from vlm.utils.get_itm_message import get_itm_message
 
-yolov7_detector = YOLOv7Client(port=12184)
-blip2_itm = BLIP2ITMClient(port=12182)
-sam_segmentor = MobileSAMClient(port=12183)
-dino_detector = GroundingDINOClient(port=12181)
+yolov7_detector = YOLOv7Client(port=int(os.environ.get("YOLOV7_PORT", 12184)))
+blip2_itm = BLIP2ITMClient(port=int(os.environ.get("BLIP2_PORT", 12182)))
+sam_segmentor = MobileSAMClient(port=int(os.environ.get("SAM_PORT", 12183)))
+dino_detector = GroundingDINOClient(port=int(os.environ.get("GDINO_PORT", 12181)))
 
 
 def get_segmentation(segmented_img, idx, detections, img, label, score, color):

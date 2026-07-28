@@ -1,3 +1,4 @@
+import os
 import sys
 from typing import List, Optional
 
@@ -117,7 +118,7 @@ class YOLOv7:
 
 
 class YOLOv7Client:
-    def __init__(self, port: int = 12184):
+    def __init__(self, port: int = int(os.environ.get("YOLOV7_PORT", 12184))):
         self.url = f"http://localhost:{port}/yolov7"
 
     def predict(
