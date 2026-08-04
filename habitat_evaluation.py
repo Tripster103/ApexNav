@@ -152,9 +152,9 @@ def _parse_dataset_arg():
     parser.add_argument(
         "--dataset",
         type=str,
-        choices=["hm3dv1", "hm3dv2", "mp3d"],
+        choices=["hm3dv1", "hm3dv2", "mp3d", "ovon"],
         default="hm3dv2",
-        help="Choose dataset: hm3dv1, hm3dv2 or mp3d (default: hm3dv2)",
+        help="Choose dataset: hm3dv1, hm3dv2, mp3d or ovon (default: hm3dv2)",
     )
     # Keep unknown so users can still pass Hydra-style overrides (e.g., key=value)
     args, unknown = parser.parse_known_args()
@@ -166,16 +166,26 @@ def main(cfg: DictConfig) -> None:
     global ros_pub, trigger_pub, obj_point_cloud_pub, confidence_threshold_pub
     global final_state, expl_result
 
-    # Load MP3D validation data for object category mapping
-    with gzip.open(
-        "data/datasets/objectnav/mp3d/v1/val/val.json.gz", "rt", encoding="utf-8"
-    ) as f:
-        val_data = json.load(f)
-    category_to_coco = val_data.get("category_to_mp3d_category_id", {})
-    id_to_name = {
-        category_to_coco[cat]: MP3D_ID_TO_NAME[idx]
-        for idx, cat in enumerate(category_to_coco)
-    }
+    # Only mp3d/hm3d (type: ObjectNav-v1) are meant to be funneled through MP3D's
+    # canonical category naming -- their shipped LLM caches are keyed on the
+    # post-remap names (confirmed: llm_answer_hm3d.txt has "potted plant", not
+    # "plant"). OVON (type: OVON-v1) is keyed on its own raw category strings in
+    # llm_answer_ovon_claude.txt, so skip the remap for it entirely -- otherwise
+    # table/picture/plant would get silently rewritten and miss the cache.
+    apply_mp3d_remap = cfg.habitat.dataset.type == "ObjectNav-v1"
+    category_to_coco = {}
+    id_to_name = {}
+    if apply_mp3d_remap:
+         # Load MP3D validation data for object category mapping
+        with gzip.open(
+            "data/datasets/objectnav/mp3d/v1/val/val.json.gz", "rt", encoding="utf-8"
+        ) as f:
+            val_data = json.load(f)
+        category_to_coco = val_data.get("category_to_mp3d_category_id", {})
+        id_to_name = {
+            category_to_coco[cat]: MP3D_ID_TO_NAME[idx]
+            for idx, cat in enumerate(category_to_coco)
+        }
 
     start_time = time.time()
 

@@ -1,0 +1,19 @@
+# @package habitat.dataset
+# New file — mirrors hm3d.yaml/mp3d.yaml but points at the OVON-v1 dataset
+# class (registered in ovon_dataset.py as `@registry.register_dataset(name="OVON-v1")`)
+# and the HM3D-OVON scene/episode data extracted under data/datasets/objectnav/ovon/hm3d/.
+#
+# NOT YET VERIFIED on M3: confirm the exact filename inside each split folder
+# (val_seen/val_seen_synonyms/val_unseen) matches `{split}.json.gz` with a
+# sibling `content/` dir, e.g.:
+#   ls /scratch2/ml20/btripcon/data/datasets/objectnav/ovon/hm3d/val_seen/
+# If the extracted structure differs (e.g. no `content/` subdir, or a
+# different top-level filename), update data_path below to match.
+
+defaults:
+  - /habitat/dataset: dataset_config_schema
+  - _self_
+
+type: OVON-v1
+split: val_seen
+data_path: data/datasets/objectnav/ovon/hm3d/{split}/{split}.json.gz
