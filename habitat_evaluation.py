@@ -202,6 +202,20 @@ def main(cfg: DictConfig) -> None:
 
     cfg = patch_config(cfg)
 
+    # OVON is open-vocabulary -- habitat-lab's default ObjectGoalSensor (defined in
+    # object_nav_task.py, pulled in by /habitat/task: objectnav) requires
+    # dataset.category_to_task_category_id, a closed-vocab concept OVONDatasetV1
+    # doesn't implement. ApexNav never reads this sensor's output (confirmed via
+    # grep -rn "objectgoal" ApexNav/*.py -- own VLM/LLM pipeline does detection),
+    # so drop it for OVON runs instead of faking a category mapping.
+    if cfg.habitat.dataset.type == "OVON-v1":
+        from omegaconf import OmegaConf, open_dict
+        was_readonly = OmegaConf.is_readonly(cfg)
+        OmegaConf.set_readonly(cfg, False)
+        with open_dict(cfg):
+            cfg.habitat.task.lab_sensors.pop("objectgoal_sensor", None)
+        OmegaConf.set_readonly(cfg, was_readonly)
+
     # Extract configuration parameters
     video_output_path = cfg.video_output_path.format(split=cfg.habitat.dataset.split)
     need_video = cfg.need_video
