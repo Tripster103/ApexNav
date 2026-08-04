@@ -45,6 +45,13 @@ import tqdm
 
 # Habitat-related imports
 import habitat
+# Import side effect only: this registers OVONDatasetV1 with habitat's dataset
+# registry (name="OVON-v1") via ovon/__init__.py's own `from ovon.dataset import
+# ovon_dataset`. Without this, make_dataset("OVON-v1", ...) fails with
+# "Could not find dataset OVON-v1" -- confirmed 2026-08-04 this is exactly what
+# was silently crashing every OVON run so far (never visibly hung, just never
+# got its stdout captured until the tee fix -- see notes/2026-08-04.md).
+import ovon  # noqa: F401
 from habitat.config.default import patch_config
 from habitat.config.default_structured_configs import (
     CollisionsMeasurementConfig,

@@ -38,6 +38,8 @@ def log(msg):
 log("Importing habitat / habitat_baselines (registers Hydra search-path plugin)...")
 import habitat  # noqa: E402
 import habitat_baselines  # noqa: E402,F401
+log("Importing ovon (registers OVON-v1 dataset class -- this was the missing piece)...")
+import ovon  # noqa: E402,F401
 from habitat.datasets.pointnav.pointnav_dataset import PointNavDatasetV1  # noqa: E402
 
 log("Import done. Patching PointNavDatasetV1._load_from_file for per-file timing...")
