@@ -195,11 +195,15 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
         env.sim.geodesic_distance(start_position, [goal_position], None)
         for goal_position in goal_positions
     ]
+    print(f"[StepSPL DEBUG] goal_positions={goal_positions}")
+    print(f"[StepSPL DEBUG] geodesic distances={distances}")
     nearest_goal_position = goal_positions[int(np.argmin(distances))]
+    print(f"[StepSPL DEBUG] nearest_goal_position={nearest_goal_position}")
 
     follower = ShortestPathFollower(env.sim, success_distance, False)
     oracle_steps = 0
     action = follower.get_next_action(nearest_goal_position)
+    print(f"[StepSPL DEBUG] first action from follower={action}, HabitatSimActions.stop={HabitatSimActions.stop}")
     while action != HabitatSimActions.stop and oracle_steps < max_episode_steps:
         env.sim.step(action)
         oracle_steps += 1
