@@ -62,6 +62,20 @@ Mirror the existing SPL/SoftSPL accumulation pattern exactly — same file, same
 5. **Reporting**: add a row to both `PrettyTable` outputs (`table1` average, `table2` total) next to the existing SPL/Soft SPL rows.
 6. **Persistence**: include in both `write_record` calls (`record_file_path`, `continue_path`) so it survives resumed runs like the other metrics.
 
+## How `ShortestPathFollower` resolves `t_i*` (2026-08-09)
+
+Question raised: with potentially multiple geometrically-equal shortest routes to a goal, how does the oracle action count avoid being ambiguous? Two separate layers, each resolving the ambiguity differently:
+
+1. **Continuous path (navmesh level).** `sim.pathfinder` runs a Recast/Detour navmesh graph search (A*-like) between current position and the goal point. If two distinct routes are truly tied in length, the search is deterministic — it returns whichever one its internal traversal produces first, not an enumeration of all shortest paths. No ambiguity at this layer.
+
+2. **Discrete action conversion (`GreedyGeodesicFollowerImpl`, the C++ backing `ShortestPathFollower.get_next_action`).** This does *not* just walk the polyline waypoint by waypoint. At every step it evaluates a set of motion primitives of the form `[turn]*n + [forward]` (0 to ~180° of turning, either direction), scores each with a reward favoring fast progress toward the goal, shorter primitives, and obstacle avoidance, then takes only the *first* action of the winning primitive — and re-evaluates from scratch next step from the new position/rotation. It's local greedy replanning every single action, not a commitment to one fixed sequence computed upfront. Also has thrashing detection (`fixThrashing`, default `thrashingThreshold=16`) to avoid oscillating left/right/left/right near obstacles.
+
+This is what neutralizes the "multiple solutions" concern: because it re-derives the best next action from wherever it currently is rather than following a pre-computed plan, it doesn't matter if there were multiple equally-good routes at the start — it just keeps making locally-optimal progress each step, converging to *a* valid shortest-action path even if that path isn't uniquely determined in advance.
+
+**Caveat for the write-up:** greedy local-primitive selection is a heuristic, not a formal proof of the theoretically minimal discrete action count — so `t_i*` is technically an oracle *approximation*, not a strict optimum. This is standard practice, though: it's the same utility Habitat-Lab's own SPL and essentially every ObjectNav baseline in the literature use for their oracle path length, so it's a defensible, citable choice rather than a shortcut introduced for this project.
+
+Sources: [`esp::nav::GreedyGeodesicFollowerImpl` class docs](https://aihabitat.org/docs/habitat-sim/classesp_1_1nav_1_1GreedyGeodesicFollowerImpl.html), [`habitat.tasks.nav.shortest_path_follower.ShortestPathFollower` docs](https://aihabitat.org/docs/habitat-lab/habitat.tasks.nav.shortest_path_follower.ShortestPathFollower.html).
+
 ## Open questions to resolve during implementation
 
 - Exact API signature for `ShortestPathFollower` in the pinned `habitat-lab v0.3.1` (constructor args, whether it needs `goal_radius` matching `success_distance: 0.2`) — check the installed package source directly on M3 rather than assuming, since APIs can drift between Habitat-Lab versions.
