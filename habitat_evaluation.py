@@ -59,6 +59,7 @@ from habitat.config.default_structured_configs import (
     TopDownMapMeasurementConfig,
 )
 from habitat.sims.habitat_simulator.actions import HabitatSimActions
+from habitat.tasks.nav.shortest_path_follower import ShortestPathFollower
 from habitat.utils.visualizations.utils import (
     images_to_video,
     observations_to_image,
@@ -168,6 +169,46 @@ def _parse_dataset_arg():
     return args.dataset, unknown
 
 
+def compute_oracle_step_count(env, success_distance, max_episode_steps):
+    """Oracle shortest-path action count (t_i*) for StepSPL.
+
+    Resolves the nearest goal the same way habitat's own DistanceToGoal/SPL
+    measures do (distance_to="POINT", nearest of episode.goals -- confirmed
+    no ApexNav config overrides this), then rolls out ShortestPathFollower
+    via raw sim.step() calls (bypassing env.step(), which is what actually
+    advances _elapsed_steps/task measurements -- so this rollout is invisible
+    to the real episode's SPL/success/step tracking). Agent state is restored
+    to the episode's start pose afterward so the real ROS-driven navigation
+    loop starts from an untouched episode start.
+
+    NOTE: passing `episode` into geodesic_distance() caches path.requested_ends
+    and reuses it (ignoring new goal points) on later calls with that same
+    episode object -- so the per-goal argmin below deliberately passes
+    episode=None to bypass that cache instead of reusing it across goals.
+    """
+    episode = env.current_episode
+    start_position = episode.start_position
+    start_rotation = episode.start_rotation
+
+    goal_positions = [goal.position for goal in episode.goals]
+    distances = [
+        env.sim.geodesic_distance(start_position, [goal_position], None)
+        for goal_position in goal_positions
+    ]
+    nearest_goal_position = goal_positions[int(np.argmin(distances))]
+
+    follower = ShortestPathFollower(env.sim, success_distance, False)
+    oracle_steps = 0
+    action = follower.get_next_action(nearest_goal_position)
+    while action != HabitatSimActions.stop and oracle_steps < max_episode_steps:
+        env.sim.step(action)
+        oracle_steps += 1
+        action = follower.get_next_action(nearest_goal_position)
+
+    env.sim.set_agent_state(start_position, start_rotation)
+    return oracle_steps
+
+
 def main(cfg: DictConfig) -> None:
     global msg_observations, global_action, ros_state, fusion_threshold
     global ros_pub, trigger_pub, obj_point_cloud_pub, confidence_threshold_pub
@@ -274,6 +315,7 @@ def main(cfg: DictConfig) -> None:
         soft_spl_all,
         distance_to_goal_all,
         distance_to_goal_reward_all,
+        step_spl_all,
         last_time,
     ) = read_record(continue_path, flag_once)
 
@@ -327,6 +369,9 @@ def main(cfg: DictConfig) -> None:
 
         camera_pitch = 0.0
         observations = env.reset()
+        oracle_step_count = compute_oracle_step_count(
+            env, success_distance, max_episode_steps
+        )
         observations["camera_pitch"] = camera_pitch
         msg_observations = deepcopy(observations)
         del observations["camera_pitch"]
@@ -475,6 +520,14 @@ def main(cfg: DictConfig) -> None:
         distance_to_goal_reward = info["distance_to_goal_reward"]
         success = info["success"]
 
+        # StepSPL: SPL's formula but in discrete action count instead of
+        # continuous path length -- max(..., 1) guards the 0/0 case where the
+        # agent starts within success_distance of the goal (oracle_step_count
+        # and count_steps both 0), which would otherwise raise ZeroDivisionError.
+        step_spl = success * (
+            oracle_step_count / max(count_steps, oracle_step_count, 1)
+        )
+
         # Check if agent got close to the target object
         if distance_to_goal <= success_distance:
             near_object = 1
@@ -498,6 +551,7 @@ def main(cfg: DictConfig) -> None:
         num_total += 1
         spl_all += spl
         soft_spl_all += soft_spl
+        step_spl_all += step_spl
         distance_to_goal_all += distance_to_goal
         distance_to_goal_reward_all += distance_to_goal_reward
 
@@ -524,6 +578,7 @@ def main(cfg: DictConfig) -> None:
         table1.add_row(["Average Success", f"{num_success/num_total * 100:.2f}%"])
         table1.add_row(["Average SPL", f"{spl_all/num_total * 100:.2f}%"])
         table1.add_row(["Average Soft SPL", f"{soft_spl_all/num_total * 100:.2f}%"])
+        table1.add_row(["Average StepSPL", f"{step_spl_all/num_total * 100:.2f}%"])
         table1.add_row(
             ["Average Distance to Goal", f"{distance_to_goal_all/num_total:.4f}"]
         )
@@ -536,6 +591,7 @@ def main(cfg: DictConfig) -> None:
         table2.add_row(["Total Success", f"{num_success}"])
         table2.add_row(["Total SPL", f"{spl_all:.2f}"])
         table2.add_row(["Total Soft SPL", f"{soft_spl_all:.2f}"])
+        table2.add_row(["Total StepSPL", f"{step_spl_all:.2f}"])
         table2.add_row(["Total Distance to Goal", f"{distance_to_goal_all:.4f}"])
 
         if flag_once:

@@ -15,16 +15,18 @@ def read_record(continue_path, flag_once=False):
         flag_once (bool): If True, return empty metrics (single run mode)
         
     Returns:
-        tuple: (num_total, num_success, spl_all, soft_spl_all, 
-                distance_to_goal_all, distance_to_goal_reward_all, last_time)
-                
+        tuple: (num_total, num_success, spl_all, soft_spl_all,
+                distance_to_goal_all, distance_to_goal_reward_all,
+                step_spl_all, last_time)
+
     Metrics returned:
         - num_total: Total number of episodes completed
-        - num_success: Number of successful episodes  
+        - num_success: Number of successful episodes
         - spl_all: Cumulative Success weighted by Path Length
         - soft_spl_all: Cumulative Soft SPL metric
         - distance_to_goal_all: Cumulative distance to goal
         - distance_to_goal_reward_all: Cumulative distance-based rewards
+        - step_spl_all: Cumulative StepSPL metric
         - last_time: Time spent on last episode
     """
     # Initialize variables to store the metrics
@@ -34,6 +36,7 @@ def read_record(continue_path, flag_once=False):
     soft_spl_all = 0.0
     distance_to_goal_all = 0.0
     distance_to_goal_reward_all = 0.0
+    step_spl_all = 0.0
     last_time = 0.0
 
     # Return directly for single run
@@ -45,6 +48,7 @@ def read_record(continue_path, flag_once=False):
             soft_spl_all,
             distance_to_goal_all,
             distance_to_goal_reward_all,
+            step_spl_all,
             last_time,
         )
     # Confirm file exists
@@ -66,6 +70,9 @@ def read_record(continue_path, flag_once=False):
             )
             soft_spl_all = float(
                 re.search(r"Total Soft SPL\s+\|\s+([\d\.]+)", latest_record).group(1)
+            )
+            step_spl_all = float(
+                re.search(r"Total StepSPL\s+\|\s+([\d\.]+)", latest_record).group(1)
             )
             distance_to_goal_all = float(
                 re.search(
@@ -92,5 +99,6 @@ def read_record(continue_path, flag_once=False):
         soft_spl_all,
         distance_to_goal_all,
         distance_to_goal_reward_all,
+        step_spl_all,
         last_time,
     )
