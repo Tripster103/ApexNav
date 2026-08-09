@@ -190,14 +190,25 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
     start_position = episode.start_position
     start_rotation = episode.start_rotation
 
-    goal_positions = [goal.position for goal in episode.goals]
-    distances = [
-        env.sim.geodesic_distance(start_position, [goal_position], None)
-        for goal_position in goal_positions
+    # Use each goal's navigable view_points, not the raw goal.position --
+    # confirmed via [StepSPL DEBUG] (2026-08-09) that geodesic_distance to
+    # the raw object position returns inf even on episodes the real agent
+    # successfully completes, because goal.position (the object's own
+    # location) is frequently off the navmesh. view_points are precomputed
+    # navigable points near the object -- this is what habitat-lab's own
+    # ObjectNav DistanceToGoal/Success measures resolve to internally.
+    candidate_positions = [
+        view_point.agent_state.position
+        for goal in episode.goals
+        for view_point in goal.view_points
     ]
-    print(f"[StepSPL DEBUG] goal_positions={goal_positions}")
+    distances = [
+        env.sim.geodesic_distance(start_position, [position], None)
+        for position in candidate_positions
+    ]
+    print(f"[StepSPL DEBUG] candidate view_point positions={candidate_positions}")
     print(f"[StepSPL DEBUG] geodesic distances={distances}")
-    nearest_goal_position = goal_positions[int(np.argmin(distances))]
+    nearest_goal_position = candidate_positions[int(np.argmin(distances))]
     print(f"[StepSPL DEBUG] nearest_goal_position={nearest_goal_position}")
 
     follower = ShortestPathFollower(env.sim, success_distance, False)
