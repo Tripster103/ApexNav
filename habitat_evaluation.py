@@ -54,7 +54,12 @@ import habitat
 # "Could not find dataset OVON-v1" -- confirmed 2026-08-04 this is exactly what
 # was silently crashing every OVON run so far (never visibly hung, just never
 # got its stdout captured until the tee fix -- see notes/2026-08-04.md).
-import ovon  # noqa: F401
+
+# The conditional `import ovon` lives in __main__ (below), NOT here: at module
+# scope this ran before _parse_dataset_arg() was defined (line 58 vs line 162),
+# which is a NameError at import time. It also MUST run before compose(), since
+# the whole point is to populate the Hydra ConfigStore -- __main__ satisfies both.
+    
 from habitat.config.default import patch_config
 from habitat.config.default_structured_configs import (
     CollisionsMeasurementConfig,
@@ -722,6 +727,21 @@ if __name__ == "__main__":
 
     try:
         dataset, overrides = _parse_dataset_arg()
+
+        # OVON-only, and only ever here. `import ovon` does cs.store(group="habitat",
+        # name="habitat_config_base", node=OVONHabitatConfig), which OVERWRITES the
+        # identical store in habitat-lab's default_structured_configs.py:1919. That
+        # swaps habitat.simulator.type from Sim-v0 to OVONSim-v0 for EVERY dataset,
+        # and OVONSim recomputes the navmesh on init and on every scene change
+        # (ovon/task/simulator.py:12,38), discarding the shipped *.basis.navmesh the
+        # episodes were generated against -- moving geodesic distance, traversability,
+        # distance_to_goal, the SPL denominator and success. Confirmed 2026-08-11:
+        # baseline hm3dv1 logged "initializing sim Sim-v0", the unconditional-import
+        # runs logged "initializing sim OVONSim-v0". Must precede compose() so the
+        # ConfigStore is populated in time for OVON's own config to resolve.
+        if dataset == "ovon":
+            import ovon  # noqa: F401
+
         cfg_name = f"habitat_eval_{dataset}"
         # Compose the chosen config and pass through extra Hydra overrides
         with initialize(version_base=None, config_path="config"):

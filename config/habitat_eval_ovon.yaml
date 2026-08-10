@@ -28,17 +28,82 @@ habitat:
         dimensionality: 3
     measurements:
       success:
-        success_distance: 0.2
+        # 0.25, not the 0.2 used by our hm3dv1/hm3dv2/mp3d configs -- this is
+        # HM3D-OVON's own evaluation protocol, so it is benchmark-defined rather
+        # than method-defined. Verified 2026-08-11: every success_distance in the
+        # OVON repo is 0.25 (8 occurrences across config/experiments/*.yaml, plus
+        # ovon/utils/visualize_trajectories.py:144 which sets it unconditionally
+        # in Python). No competing value exists anywhere in their codebase, and it
+        # sits under task.measurements rather than under agents, so it applies to
+        # the LoCoBot embodiment just as it does to Stretch.
+        # NOTE for the write-up: this makes OVON's threshold differ from the other
+        # three datasets. That is each benchmark using its own protocol, not an
+        # inconsistency -- but it must be stated explicitly in the methodology,
+        # since SR is not directly comparable across columns at different radii.
+        success_distance: 0.25
   simulator:
+    # Pinned explicitly rather than left to ovon's cs.store override of
+    # habitat_config_base, so this file states the embodiment it is running.
+    type: "OVONSim-v0"
+    # OVON's stretch task config sets this (objectnav_stretch_hm3d.yaml:16).
+    # Inert on the live path -- LookUpAction reads task.actions.look_up.tilt_angle
+    # (nav.py:1047), which habitat's objectnav.yaml already sets to 30, matching
+    # ApexNav's hardcoded np.pi/6 in habitat_evaluation.py:499. Set for parity.
+    tilt_angle: 30
+
+    # OVONSim-v0 (selected via ovon's cs.store override of habitat_config_base)
+    # THROWS AWAY each scene's shipped *.basis.navmesh and recomputes it on init
+    # and on every scene change -- ovon/task/simulator.py:12,38. So these two
+    # values are not cosmetic: they define the navmesh we actually navigate.
+    #
+    # Without this block we inherit OVONSimulatorConfig's defaults of 0.2/0.2
+    # (ovon/config.py:120-121), which are dead values -- all six OVON experiment
+    # configs override them to 0.1/0.05 and nothing in their repo runs the
+    # defaults. cell_height 0.2 -> 0.05 is the one that matters: a 4x coarser
+    # voxelisation merges thin geometry, drops narrow passages, and changes island
+    # connectivity, so OVON episode start positions verified navigable on their
+    # navmesh can get silently snapped elsewhere and goals can become unreachable.
+    # That inflates failures for reasons unrelated to ApexNav. Correctness fix,
+    # not a fairness one.
+    #
+    # Note agent_max_climb 0.2 -> 0.1 REDUCES connectivity, so this block is not
+    # expected to raise SR on its own. The recompute also reads agent height/radius
+    # from agents.main_agent below (0.88/0.18, the LoCoBot body we are keeping), so
+    # this aligns OVON's discretisation, not their embodiment.
+    navmesh_settings:
+      agent_max_climb: 0.1
+      cell_height: 0.05
     habitat_sim_v0:
       allow_sliding: false
     forward_step_size: 0.25
     turn_angle: 30
+    # OVON's Stretch embodiment, from ovon/config/tasks/objectnav_stretch_hm3d.yaml
+    # (the task config all six of their experiment YAMLs include). This is the
+    # embodiment the HM3D-OVON paper's Table III was produced with, so it is the
+    # only one whose numbers can sit next to published results (e.g. VLFM).
+    # Overrides the LoCoBot body inherited from benchmark/nav/objectnav/objectnav_ovon.yaml
+    # (0.88/0.18, camera at 0.88, 640x480, hfov 79) -- that config mirrors
+    # objectnav_hm3d.yaml, which is the standard HM3D-ObjectNav LoCoBot spec.
+    # NOTE the sensor is PORTRAIT: width 360, height 640. Not a typo, not reversed.
     agents:
       main_agent:
-        radius: 0.18
+        height: 1.41
+        radius: 0.17
         sim_sensors:
+          rgb_sensor:
+            position: [0.0, 1.31, 0.0]
+            width: 360
+            height: 640
+            hfov: 42
+          # OVON's stretch config is rgb_agent -- it defines NO depth sensor,
+          # because their policy is RGB-only. ApexNav needs depth, so this block
+          # necessarily mirrors the RGB frustum rather than matching an OVON spec.
+          # min/max depth stay at ApexNav's perception range (method, not benchmark).
           depth_sensor:
+            position: [0.0, 1.31, 0.0]
+            width: 360
+            height: 640
+            hfov: 42
             min_depth: 0.0
             max_depth: 5.0
             normalize_depth: true
