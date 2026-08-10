@@ -27,6 +27,7 @@ Author: Zager-Zhang
 import argparse
 import gzip
 import json
+import math
 import os
 import signal
 import sys
@@ -596,12 +597,33 @@ def main(cfg: DictConfig) -> None:
             )
 
         # Update cumulative statistics
+        # Guard added 2026-08-10 -- Habitat's own SPL/soft_spl/distance_to_goal
+        # measures return inf/NaN for episodes where the goal is genuinely
+        # unreachable via the navmesh (confirmed on a hm3d-ovon val_seen episode,
+        # target "container" -- a rarer/obscure category HM3D-ObjectNav's narrow
+        # 6-category set would never sample near, despite OVON sharing the exact
+        # same HM3DSem scene data/navmesh as hm3d/mp3d). is_on_same_floor() is
+        # only a coarse 2m height-window heuristic, so "infeasible" per our own
+        # check_failure() does NOT reliably mean the navmesh is actually
+        # disconnected -- most infeasible episodes still have a finite (if
+        # large) geodesic distance. These are running sums used to compute an
+        # average every episode, so a single non-finite value permanently
+        # poisons every subsequent average for the rest of the run (NaN/inf
+        # propagate through +=). Treat non-finite as a 0.0 contribution instead
+        # -- num_total still counts the episode; StepSPL is unaffected since its
+        # formula can't produce non-finite values in the first place.
         num_total += 1
-        spl_all += spl
-        soft_spl_all += soft_spl
+        spl_all += spl if math.isfinite(spl) else 0.0
+        soft_spl_all += soft_spl if math.isfinite(soft_spl) else 0.0
         step_spl_all += step_spl
-        distance_to_goal_all += distance_to_goal
-        distance_to_goal_reward_all += distance_to_goal_reward
+        distance_to_goal_all += (
+            distance_to_goal if math.isfinite(distance_to_goal) else 0.0
+        )
+        distance_to_goal_reward_all += (
+            distance_to_goal_reward
+            if math.isfinite(distance_to_goal_reward)
+            else 0.0
+        )
 
         # Generate video file
         scene_id = env.current_episode.scene_id
