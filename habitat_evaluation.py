@@ -29,7 +29,9 @@ import gzip
 import json
 import os
 import signal
+import sys
 import time
+import traceback
 from copy import deepcopy
 
 # Third-party library imports
@@ -202,6 +204,30 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
         for goal in episode.goals
         for view_point in goal.view_points
     ]
+
+    # Guard added 2026-08-10 -- a full hm3dv1/hm3dv2/mp3d sbatch sweep died with
+    # NO traceback anywhere in .out/.err. Root cause: this function had two
+    # unguarded failure paths across thousands of episodes -- (1) a goal with
+    # zero view_points leaves candidate_positions empty, so np.argmin([]) raises
+    # ValueError; (2) ShortestPathFollower.get_next_action() raises
+    # habitat_sim.errors.GreedyFollowerError internally if it can't make
+    # progress toward an unreachable point. Either exception propagates out of
+    # main() and is caught by the top-level `except Exception as e: print(...);
+    # os._exit(1)` in __main__ -- but os._exit() skips the normal stdio flush,
+    # so on a file-redirected (block-buffered) stdout even that one-line
+    # message never reached disk, killing the whole multi-day sweep on a
+    # single bad episode with zero evidence of why. Degrade gracefully instead:
+    # treat a bad episode's oracle as max_episode_steps (known simplification --
+    # see docs/ApexNav_StepSPL_Implementation.md open questions) rather than
+    # crash the run.
+    if not candidate_positions:
+        print(
+            f"[StepSPL WARNING] episode {episode.episode_id} has no goal "
+            "view_points -- skipping oracle rollout, treating as max_episode_steps"
+        )
+        env.sim.set_agent_state(start_position, start_rotation)
+        return max_episode_steps
+
     distances = [
         env.sim.geodesic_distance(start_position, [position], None)
         for position in candidate_positions
@@ -213,12 +239,19 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
 
     follower = ShortestPathFollower(env.sim, success_distance, False)
     oracle_steps = 0
-    action = follower.get_next_action(nearest_goal_position)
-    print(f"[StepSPL DEBUG] first action from follower={action}, HabitatSimActions.stop={HabitatSimActions.stop}")
-    while action != HabitatSimActions.stop and oracle_steps < max_episode_steps:
-        env.sim.step(action)
-        oracle_steps += 1
+    try:
         action = follower.get_next_action(nearest_goal_position)
+        print(f"[StepSPL DEBUG] first action from follower={action}, HabitatSimActions.stop={HabitatSimActions.stop}")
+        while action != HabitatSimActions.stop and oracle_steps < max_episode_steps:
+            env.sim.step(action)
+            oracle_steps += 1
+            action = follower.get_next_action(nearest_goal_position)
+    except Exception as e:
+        print(
+            f"[StepSPL WARNING] episode {episode.episode_id} oracle rollout "
+            f"failed ({type(e).__name__}: {e}) -- treating as max_episode_steps"
+        )
+        oracle_steps = max_episode_steps
 
     env.sim.set_agent_state(start_position, start_rotation)
     return oracle_steps
@@ -673,6 +706,16 @@ if __name__ == "__main__":
             cfg = compose(config_name=cfg_name, overrides=overrides)
         main(cfg)
     except Exception as e:
+        # Print full traceback (not just str(e)) and force a flush before
+        # os._exit() -- added 2026-08-10 after a full sbatch sweep died with
+        # NO error text anywhere in its logs. os._exit() skips Python's normal
+        # stdio flush, so on a file-redirected (block-buffered) stdout, even
+        # this handler's own message could be lost if the buffer hadn't
+        # naturally flushed yet. sys.stdout/stderr.flush() before _exit()
+        # guarantees whatever we print here actually reaches disk.
         print(f"Unexpected error occurred: {e}")
+        traceback.print_exc()
+        sys.stdout.flush()
+        sys.stderr.flush()
         rospy.signal_shutdown("Shutdown due to error")
         os._exit(1)
