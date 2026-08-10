@@ -45,11 +45,18 @@ habitat:
     # Pinned explicitly rather than left to ovon's cs.store override of
     # habitat_config_base, so this file states the embodiment it is running.
     type: "OVONSim-v0"
-    # OVON's stretch task config sets this (objectnav_stretch_hm3d.yaml:16).
-    # Inert on the live path -- LookUpAction reads task.actions.look_up.tilt_angle
-    # (nav.py:1047), which habitat's objectnav.yaml already sets to 30, matching
-    # ApexNav's hardcoded np.pi/6 in habitat_evaluation.py:499. Set for parity.
-    tilt_angle: 30
+    # DO NOT add `tilt_angle` here. OVON's stretch task config has it
+    # (objectnav_stretch_hm3d.yaml:16), but this habitat-lab has no such key on
+    # SimulatorConfig -- tilt_angle belongs to DiscreteNavigationActionConfig
+    # (default_structured_configs.py:162), while turn_angle is the one that does
+    # live on SimulatorConfig (:1727). Setting it fails composition outright:
+    #   ConfigKeyError: Key 'tilt_angle' not in 'OVONSimulatorConfig'
+    # (killed job 58962681, 2026-08-11). OVON's configs target a different
+    # habitat-lab revision than the one vendored here.
+    # Nothing is lost: the live path is LookUpAction._tilt_angle = config.tilt_angle
+    # (nav.py:1047) reading task.actions.look_up.tilt_angle, which habitat's
+    # objectnav.yaml already sets to 30 -- matching ApexNav's hardcoded np.pi/6
+    # in habitat_evaluation.py:499. Pitch is already 30 degrees per step.
 
     # OVONSim-v0 (selected via ovon's cs.store override of habitat_config_base)
     # THROWS AWAY each scene's shipped *.basis.navmesh and recomputes it on init
