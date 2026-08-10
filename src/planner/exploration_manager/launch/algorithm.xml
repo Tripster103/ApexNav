@@ -100,7 +100,7 @@
     <!-- ATSP solver -->
     <node pkg="lkh_mtsp_solver" name="tsp_solver" type="tsp_node" output="log">
         <!-- tsp_node reads its OWN copy of this param (tsp_node.cpp:27, private
-             nh("~")) to locate atsp_tour.par -- both sides must point at the
+             nh("~")) to locate atsp_tour.par; both sides must point at the
              same per-job dir or the handshake breaks. -->
         <param name="exploration/tsp_dir" value="$(arg tsp_dir_)" type="string"/>
     </node>

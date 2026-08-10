@@ -14,6 +14,17 @@
     <!-- Real-world mode flag (default to false for simulation) -->
     <arg name="is_real_world_" default="false"/>
 
+    <!-- Scratch dir for the LKH ATSP handshake files (atsp_tour.{atsp,par,tour}).
+         MUST be unique per concurrently-running job. The old hardcoded default
+         ($(find lkh_mtsp_solver)/resource) is a single shared path on Lustre, so
+         parallel sweeps interleaved their writes; LKH then parsed a cost-matrix
+         row as a parameter keyword, called exit(), and killed tsp_node for the
+         rest of every run (2026-08-10, see notes/2026-08-10.md). Default kept
+         for single-job/interactive use; batch jobs must override it.
+         Kept in sync with algorithm.xml; both launch files reach the same
+         tsp_node, so fixing only one leaves the race live on the other path. -->
+    <arg name="tsp_dir_" default="$(find lkh_mtsp_solver)/resource"/>
+
     <!-- main node -->
     <node pkg="exploration_manager" name="exploration_node" type="exploration_node" output="screen">
         <!-- Load trajectory planning parameters for real-world mode -->
@@ -69,7 +80,7 @@
         <param name="exploration/sigma_threshold" value="0.015" type="double"/>
         <param name="exploration/max_to_mean_threshold" value="1.10" type="double"/>
         <param name="exploration/max_to_mean_percentage" value="0.90" type="double"/>
-        <param name="exploration/tsp_dir" value="$(find lkh_mtsp_solver)/resource" type="string"/>
+        <param name="exploration/tsp_dir" value="$(arg tsp_dir_)" type="string"/>
 
         <param name="frontier/cluster_min" value="5" type="int"/>
         <param name="frontier/cluster_size_xy" value="0.65" type="double"/>
@@ -95,6 +106,9 @@
 
     <!-- ATSP solver -->
     <node pkg="lkh_mtsp_solver" name="tsp_solver" type="tsp_node" output="log">
-        <param name="exploration/tsp_dir" value="$(find lkh_mtsp_solver)/resource" type="string"/>
+        <!-- tsp_node reads its OWN copy of this param (tsp_node.cpp:27, private
+             nh("~")) to locate atsp_tour.par; both sides must point at the
+             same per-job dir or the handshake breaks. -->
+        <param name="exploration/tsp_dir" value="$(arg tsp_dir_)" type="string"/>
     </node>
 </launch>

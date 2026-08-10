@@ -7,8 +7,8 @@
   <arg name="is_real_world" default="false"/>
 
   <!-- Per-job scratch dir for the LKH ATSP handshake files. Batch jobs MUST
-       override this with something unique (e.g. /tmp/apexnav_$SLURM_JOB_ID/tsp)
-       -- see notes/2026-08-10.md for what sharing it across parallel jobs did. -->
+       override this with something unique (e.g. /tmp/apexnav_$SLURM_JOB_ID/tsp).
+       See notes/2026-08-10.md for what sharing it across parallel jobs did. -->
   <arg name="tsp_dir" default="$(find lkh_mtsp_solver)/resource"/>
 
   <!-- topic of your odometry such as VIO or LIO -->
