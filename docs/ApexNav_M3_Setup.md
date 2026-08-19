@@ -1,5 +1,7 @@
 # ApexNav Reproduction on M3 — Setup Reference
 
+_Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony._
+
 Goal: reproduce ApexNav's baseline SR/SPL results (HM3Dv1, HM3Dv2, MP3D) on Monash M3 before moving on to UniGoal or any cost-aware modifications.
 
 Paper baseline numbers to check against (Table I, SR/SPL):

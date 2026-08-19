@@ -1,3 +1,4 @@
+# Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 appliance: ['microwave', 'refrigerator', 'dishwasher', 'toaster', 'oven', 0.30, 'kitchen']
 armchair: ['chair', 'couch', 'ottoman', 'recliner', 0.45, 'living room']
 backpack: ['handbag', 'suitcase', 'bag', 'box', 0.30, 'everywhere']

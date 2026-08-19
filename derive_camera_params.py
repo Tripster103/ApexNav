@@ -19,6 +19,8 @@ Emits exactly ONE line on stdout, e.g.:
     habitat_config:=habitat_eval_ovon cx:=180.0 cy:=320.0 fx:=... fy:=... \
         left_angle:=... right_angle:=...
 Everything the imports emit is diverted to stderr -- see _load() below.
+
+Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """
 import argparse
 import contextlib

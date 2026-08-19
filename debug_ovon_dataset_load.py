@@ -27,6 +27,8 @@ construction is in scope, unlike the original dataset-only version of this
 script):
   bash /scratch2/ml20/btripcon/jobs/apptainer_run.sh \
     /scratch2/ml20/btripcon/conda/envs/apexnav/bin/python debug_ovon_dataset_load.py
+
+Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """
 import time
 

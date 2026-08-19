@@ -1,5 +1,7 @@
 # StepSPL: Implementation Plan for ApexNav
 
+_Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony._
+
 Notes from 2026-07-14, captured after confirming how ApexNav's evaluation pipeline actually computes SR/SPL, and scoping out adding the custom StepSPL metric defined in the Initial Paper (`FYP Part A/Initial Paper/final/draft2.tex`, eq. `stepspl`).
 
 ## Background: SR/SPL are Habitat's, not ApexNav's

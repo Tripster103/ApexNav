@@ -1,4 +1,5 @@
 # @package habitat.dataset
+# Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 # New file — mirrors hm3d.yaml/mp3d.yaml but points at the OVON-v1 dataset
 # class (registered in ovon_dataset.py as `@registry.register_dataset(name="OVON-v1")`)
 # and the HM3D-OVON scene/episode data extracted under data/datasets/objectnav/ovon/hm3d/.

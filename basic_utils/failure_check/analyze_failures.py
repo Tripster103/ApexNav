@@ -26,6 +26,8 @@ Output (written to --out, plus printed to stdout):
     - failure_dist_<dataset>.csv    our 9-way + ApexNav's 6-way (A-F) distribution, counts and %
     - by_object_<dataset>.csv       per target-object-category success rate and failure breakdown, sorted worst-first
     - failure_dist.png / by_object_worst.png   bar charts (only if matplotlib is available; skipped otherwise)
+
+Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """
 
 import argparse

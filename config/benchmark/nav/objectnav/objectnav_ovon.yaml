@@ -1,4 +1,5 @@
 # @package _global_
+# Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 # New file — no upstream habitat-lab equivalent exists (only objectnav_mp3d /
 # objectnav_hm3d ship in habitat-lab itself). Mirrors objectnav_hm3d.yaml
 # exactly, just swapping the dataset group to `ovon` (config/habitat/dataset/

@@ -645,8 +645,14 @@ def main(cfg: DictConfig) -> None:
         img2video_output_path = os.path.join(video_output_path, result_text)
 
         if flag_once:
-            img2video_output_path = "videos"
-            video_name = "video_once"
+            # Single-episode runs keep the scene_episode name and land in their own
+            # subfolder. Upstream wrote every single-episode run to the SAME
+            # videos/video_once.mp4, so back-to-back runs of two different episodes
+            # silently overwrote each other and the surviving file said nothing about
+            # which episode it came from. "single/" (not result_text/) keeps these out
+            # of the sweep's success/failure folders, which
+            # count_files_in_directory() tallies into the /habitat/record topic.
+            img2video_output_path = os.path.join(video_output_path, "single")
 
         if need_video:
             images_to_video(

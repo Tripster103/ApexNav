@@ -1,5 +1,7 @@
 # ApexNav Details
 
+_Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony._
+
 Source: Zhang et al., "ApexNav: An Adaptive Exploration Strategy for Zero-Shot Object Navigation with Target-centric Semantic Fusion," IEEE RA-L, 2025 (arXiv:2504.14478v3), Section IV (Methodology) and Section V-A (Implementation Details). Cross-referenced against the GitHub repo (`Robotics-STAR-Lab/ApexNav`) README and source (`vlm/detector/*`, `apexnav_environment.yaml`).
 
 ## Model Components
