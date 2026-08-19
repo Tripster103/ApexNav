@@ -11,6 +11,20 @@
     <arg name="fx_"/>
     <arg name="fy_"/>
 
+    <!-- Half angle of the assumed horizontal view cone, in radians. Default is
+         upstream's 30 deg, chosen against the LoCoBot's 79 deg camera (76% of its
+         true 39.5 deg half hfov, i.e. deliberately conservative). It is NOT a free
+         tuning knob: frontier_map2d.cpp:280 retires a frontier to dormant once it
+         falls inside this cone and a raycast reaches it, so a cone wider than the
+         real sensor retires frontiers that were never imaged, which drains the
+         frontier list and ends the episode as "no frontier". On OVON's Stretch
+         camera (42 deg hfov, 21 deg half) the 30 deg default claims 143% of what
+         the sensor can see. derive_camera_params.py therefore emits
+         min(30 deg, hfov/2): unchanged 30 deg for the LoCoBot datasets, 21 deg for
+         ovon. -->
+    <arg name="left_angle_" default="$(eval 30 * 3.1415926 / 180.0)"/>
+    <arg name="right_angle_" default="$(eval 30 * 3.1415926 / 180.0)"/>
+
     <!-- Real-world mode flag (default to false for simulation) -->
     <arg name="is_real_world_" default="false"/>
 
@@ -87,8 +101,8 @@
         <param name="object/vis_cloud" value="true" type="bool"/>
 
         <!-- Perception utils -->
-        <param name="perception_utils/left_angle" value="$(eval 30 * 3.1415926 / 180.0)" type="double"/>
-        <param name="perception_utils/right_angle" value="$(eval 30 * 3.1415926 / 180.0)" type="double"/>
+        <param name="perception_utils/left_angle" value="$(arg left_angle_)" type="double"/>
+        <param name="perception_utils/right_angle" value="$(arg right_angle_)" type="double"/>
         <param name="perception_utils/max_dist" value="4.0" type="double"/>
         <param name="perception_utils/vis_dist" value="1.0" type="double"/>
 

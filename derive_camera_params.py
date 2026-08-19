@@ -16,7 +16,8 @@ defaults 320 / 240 / 388.1910413097385 / 422.0475153598262 bit-for-bit, so wirin
 it up is a no-op for the three already-validated datasets.
 
 Emits exactly ONE line on stdout, e.g.:
-    habitat_config:=habitat_eval_ovon cx:=180.0 cy:=320.0 fx:=... fy:=...
+    habitat_config:=habitat_eval_ovon cx:=180.0 cy:=320.0 fx:=... fy:=... \
+        left_angle:=... right_angle:=...
 Everything the imports emit is diverted to stderr -- see _load() below.
 """
 import argparse
@@ -78,11 +79,33 @@ def main():
         print(repr(float(d.position[1])))
         return
 
+    # Half angle of the view cone ApexNav assumes, in radians.
+    #
+    # frontier_map2d.cpp:280 retires a frontier to dormant once it falls inside this
+    # cone and an unoccluded raycast reaches it; dormant frontiers stop being
+    # exploration targets, and draining the active list is what ends an episode as
+    # "no frontier". So a cone WIDER than the real sensor retires frontiers the camera
+    # never imaged. Upstream's 30 deg was picked against the LoCoBot's 79 deg hfov
+    # (76% of its 39.5 deg true half angle, conservative); the same 30 deg against
+    # OVON's 42 deg hfov claims 143% of what the Stretch camera can see, and 44.1% of
+    # that run's episodes ended as "no frontier".
+    #
+    # min() keeps the LoCoBot datasets at exactly 30 deg while clamping ovon to its
+    # true 21 deg half hfov. Deliberately NOT rescaled to preserve upstream's 76%
+    # margin -- that would take ovon to 15.95 deg and slow exploration further against
+    # an unchanged 500 step cap.
+    half_angle_deg = min(30.0, hfov / 2.0)
+    # 3.1415926, not math.pi: this reproduces algorithm.xml's own
+    # $(eval 30 * 3.1415926 / 180.0) bit-for-bit, so passing the value explicitly is a
+    # true no-op for hm3dv1/hm3dv2/mp3d rather than merely equal to nine decimals.
+    half_angle_rad = half_angle_deg * 3.1415926 / 180.0
+
     # repr() to round-trip the double exactly -- for the LoCoBot body this
     # reproduces the in-tree literals 388.1910413097385 / 422.0475153598262 bitwise.
     print(
         f"habitat_config:=habitat_eval_{args.dataset} "
-        f"cx:={cx!r} cy:={cy!r} fx:={fx!r} fy:={fy!r}"
+        f"cx:={cx!r} cy:={cy!r} fx:={fx!r} fy:={fy!r} "
+        f"left_angle:={half_angle_rad!r} right_angle:={half_angle_rad!r}"
     )
 
 
