@@ -10,7 +10,16 @@ from copy import deepcopy
 
 
 class ROSPublisher:
-    def __init__(self):
+    def __init__(self, camera_height=0.88):
+        # Sensor height above the agent base, in metres. MUST match the active
+        # config's habitat.simulator.agents.main_agent.sim_sensors.depth_sensor
+        # .position[1] -- it is added to the GPS reading to place the camera, and
+        # therefore every point projected from the depth image, in the world frame.
+        # Default 0.88 is the HM3D-ObjectNav LoCoBot camera, kept so existing callers
+        # are unchanged. This was hardcoded at 0.88 until 2026-08-18: on OVON's Stretch
+        # body (1.31) that put the whole cloud 0.43 m low, so real obstacles fell below
+        # map_ros's filter_min_height (0.28) and never reached the occupancy map.
+        self.camera_height = camera_height
         # Create ROS publishers
         self.depth_pub = rospy.Publisher("/habitat/camera_depth", Image, queue_size=10)
         self.rgb_pub = rospy.Publisher("/habitat/camera_rgb", Image, queue_size=10)
@@ -51,7 +60,7 @@ class ROSPublisher:
         sensor_pose.header.frame_id = "world"
         sensor_pose.child_frame_id = "base_link"
         sensor_pose.pose.pose = Pose(
-            position=Point(-gps[2], -gps[0], gps[1] + 0.88),
+            position=Point(-gps[2], -gps[0], gps[1] + self.camera_height),
             orientation=Quaternion(
                 *quaternion_from_euler(
                     copy_pitch + np.pi / 2.0, np.pi, copy_compass + np.pi / 2.0

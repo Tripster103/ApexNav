@@ -11,15 +11,32 @@
        See notes/2026-08-10.md for what sharing it across parallel jobs did. -->
   <arg name="tsp_dir" default="$(find lkh_mtsp_solver)/resource"/>
 
+  <!-- Which config/habitat_eval_*.yaml to put on the param server, and the depth
+       intrinsics that must match ITS depth_sensor block. The defaults below are the
+       HM3D-ObjectNav LoCoBot body (640x480, hfov 79, camera y=0.88) that hm3dv1,
+       hm3dv2 and mp3d are validated against. DO NOT edit them to suit a different
+       embodiment; pass overrides instead. jobs/run_apexnav_benchmark.sh derives all
+       five from the composed Hydra config via derive_camera_params.py, so they cannot
+       drift from the per-dataset config/habitat_eval_*.yaml. Running OVON's Stretch
+       body (360x640, hfov 42, camera y=1.31) against these LoCoBot defaults is what
+       produced the 4.9% SR run (job 58962960, 2026-08-11).
+       NOTE: no double hyphen anywhere in this comment, it is illegal in XML and
+       roslaunch's expat parser rejects the whole file (see commit 2e0d4bf). -->
+  <arg name="habitat_config" default="habitat_eval_hm3dv2"/>
+  <arg name="cx" default="320"/>
+  <arg name="cy" default="240"/>
+  <arg name="fx" default="388.1910413097385"/>
+  <arg name="fy" default="422.0475153598262"/>
+
   <!-- topic of your odometry such as VIO or LIO -->
   <arg name="odom_topic" value="/habitat/odom" />
   <!-- transform of camera frame in the world frame -->
   <arg name="sensor_pose_topic" value="/habitat/sensor_pose"/>
-  <!-- depth image, 640x480 by default -->
+  <!-- depth image; resolution follows the active habitat_config, 640x480 by default -->
   <arg name="depth_topic" value="/habitat/camera_depth"/>
 
   <group unless="$(arg is_real_world)">
-    <rosparam file="$(find exploration_manager)/../../../config/habitat_eval_hm3dv2.yaml" command="load" />
+    <rosparam file="$(find exploration_manager)/../../../config/$(arg habitat_config).yaml" command="load" />
   </group>
 
   <!-- main algorithm params -->
@@ -36,10 +53,10 @@
     <arg name="sensor_pose_topic_" value="$(arg sensor_pose_topic)"/>
     <arg name="depth_topic_" value="$(arg depth_topic)"/>
 
-    <!-- intrinsic params of the depth camera -->
-    <arg name="cx_" value="320"/>
-    <arg name="cy_" value="240"/>
-    <arg name="fx_" value="388.1910413097385"/>
-    <arg name="fy_" value="422.0475153598262"/>
+    <!-- intrinsic params of the depth camera (see the arg block above) -->
+    <arg name="cx_" value="$(arg cx)"/>
+    <arg name="cy_" value="$(arg cy)"/>
+    <arg name="fx_" value="$(arg fx)"/>
+    <arg name="fy_" value="$(arg fy)"/>
   </include>
 </launch>

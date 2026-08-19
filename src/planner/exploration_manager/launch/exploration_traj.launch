@@ -13,6 +13,14 @@
        See notes/2026-08-10.md for what sharing it across parallel jobs did. -->
   <arg name="tsp_dir" default="$(find lkh_mtsp_solver)/resource"/>
 
+  <!-- Depth intrinsics. Defaults are the LoCoBot/real-world rig (640x480, hfov 79).
+       Overridable so a different camera no longer requires editing this file.
+       See derive_camera_params.py and the note in exploration.launch. -->
+  <arg name="cx" default="320"/>
+  <arg name="cy" default="240"/>
+  <arg name="fx" default="388.1910413097385"/>
+  <arg name="fy" default="422.0475153598262"/>
+
   <!-- topic of your odometry such as VIO or LIO -->
   <arg name="odom_topic" value="/habitat/odom" />
   <!-- transform of camera frame in the world frame -->
@@ -37,11 +45,11 @@
     <arg name="sensor_pose_topic_" value="$(arg sensor_pose_topic)"/>
     <arg name="depth_topic_" value="$(arg depth_topic)"/>
 
-    <!-- intrinsic params of the depth camera - TODO: update for your camera -->
-    <arg name="cx_" value="320"/>
-    <arg name="cy_" value="240"/>
-    <arg name="fx_" value="388.1910413097385"/>
-    <arg name="fy_" value="422.0475153598262"/>
+    <!-- intrinsic params of the depth camera (see the arg block above) -->
+    <arg name="cx_" value="$(arg cx)"/>
+    <arg name="cy_" value="$(arg cy)"/>
+    <arg name="fx_" value="$(arg fx)"/>
+    <arg name="fy_" value="$(arg fy)"/>
   </include>
 
   <!-- Trajectory server for real robot control -->

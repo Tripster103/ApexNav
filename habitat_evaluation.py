@@ -388,7 +388,13 @@ def main(cfg: DictConfig) -> None:
     obj_point_cloud_pub = rospy.Publisher(
         "habitat/object_point_cloud", PointCloud2, queue_size=10
     )
-    ros_pub = habitat_publisher.ROSPublisher()
+    # Camera height from the SAME composed config the simulator is running, not a
+    # constant -- see habitat2ros/habitat_publisher.py and derive_camera_params.py.
+    ros_pub = habitat_publisher.ROSPublisher(
+        camera_height=float(
+            cfg.habitat.simulator.agents.main_agent.sim_sensors.depth_sensor.position[1]
+        )
+    )
     rospy.Subscriber("/habitat/plan_action", Int32, ros_action_callback, queue_size=10)
     rospy.Subscriber("/ros/state", Int32, ros_state_callback, queue_size=10)
     rospy.Subscriber("/ros/expl_state", Int32, ros_final_state_callback, queue_size=10)
