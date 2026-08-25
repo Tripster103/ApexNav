@@ -180,9 +180,14 @@ def _parse_dataset_arg():
 def compute_oracle_step_count(env, success_distance, max_episode_steps):
     """Oracle shortest-path action count (t_i*) for StepSPL.
 
-    Resolves the nearest goal the same way habitat's own DistanceToGoal/SPL
-    measures do (distance_to="POINT", nearest of episode.goals -- confirmed
-    no ApexNav config overrides this), then rolls out ShortestPathFollower
+    Resolves the nearest goal the same way the active DistanceToGoal/SPL
+    measures do. Corrected 2026-08-20: this docstring previously said
+    distance_to="POINT"; the composed config actually resolves to VIEW_POINTS
+    for all four datasets (habitat's own task/objectnav.yaml sets it, and
+    nothing overrides it), which is what the view_point-based candidate list
+    below has always relied on. For OVON the measure is additionally
+    OVONDistanceToGoal rather than habitat's stock one -- see the children
+    block below. Then rolls out ShortestPathFollower
     via raw sim.step() calls (bypassing env.step(), which is what actually
     advances _elapsed_steps/task measurements -- so this rollout is invisible
     to the real episode's SPL/success/step tracking). Agent state is restored
@@ -210,6 +215,36 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
         for goal in episode.goals
         for view_point in goal.view_points
     ]
+
+    # OVON only -- mirrors OVONDistanceToGoal.reset_metric
+    # (ovon/measurements/nav.py:45-59), which extends the candidate set with the
+    # view points of the episode's `children_object_categories` (a `table` episode
+    # also succeeds on a `desk`). config/habitat_eval_ovon.yaml selects that
+    # measure, so Success/SPL resolve against the extended set; without the same
+    # extension here the StepSPL oracle would be measuring a different goal set
+    # than the metric it normalises, on the 149 of 3000 val_seen episodes (5.0%)
+    # that have a non-empty children list.
+    #
+    # getattr guards make this a no-op for hm3dv1/hm3dv2/mp3d: their episodes have
+    # no `children_object_categories` attribute and their datasets have no
+    # `goals_by_category`. Missing child keys are skipped exactly as OVON's
+    # measure skips them (verified 2026-08-20: 174/174 resolve on val_seen, so
+    # this path is not silently doing nothing).
+    child_categories = getattr(episode, "children_object_categories", None) or []
+    goals_by_category = getattr(
+        getattr(env, "_dataset", None), "goals_by_category", None
+    )
+    if child_categories and goals_by_category is not None:
+        scene_key = episode.scene_id.split("/")[-1]
+        for child_category in child_categories:
+            child_goals = goals_by_category.get(f"{scene_key}_{child_category}")
+            if child_goals is None:
+                continue
+            candidate_positions.extend(
+                view_point.agent_state.position
+                for goal in child_goals
+                for view_point in goal.view_points
+            )
 
     # Guard added 2026-08-10 -- a full hm3dv1/hm3dv2/mp3d sbatch sweep died with
     # NO traceback anywhere in .out/.err. Root cause: this function had two
@@ -262,6 +297,41 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
     env.sim.set_agent_state(start_position, start_rotation)
     return oracle_steps
 
+
+def step_spl_overlay_lines(info, oracle_step_count, count_steps):
+    """Extra top-left overlay lines for StepSPL, for overlay_frame()'s `additional`.
+
+    StepSPL is computed here rather than as a habitat Measure, so it never reaches
+    the info dict overlay_frame() renders -- `additional` is the supported hook for
+    appending raw lines under that block.
+
+    Mirrors how habitat displays spl/soft_spl, which are both
+
+        <success term> * (d_start / max(d_start, path_len_so_far))
+
+    i.e. a success term times an efficiency ratio that accumulates every step.
+    StepSPL is the same formula with discrete action counts substituted for path
+    length, so these lines update per frame exactly like spl does:
+
+      * `step_spl` -- the real metric, success * efficiency, identical in shape to
+        habitat's spl. Like spl it reads 0.00 until the agent calls STOP inside
+        success_distance, because Success gates it; on a failed episode it stays
+        0.00 for the whole video.
+      * `step_spl.eff` -- the efficiency ratio alone, the factor spl and soft_spl
+        share. Starts at 1.00, holds while the agent is inside the oracle's step
+        budget, then decays monotonically as it overspends. This is the episode's
+        StepSPL ceiling, and the only one of the two that carries information
+        mid-episode.
+
+    max(..., 1) guards the agent-starting-inside-success_distance case (both counts
+    0), matching the real step_spl computation further down.
+    """
+    efficiency = oracle_step_count / max(count_steps, oracle_step_count, 1)
+    return [
+        f"step_spl: {info['success'] * efficiency:.2f}",
+        f"step_spl.eff: {efficiency:.2f}",
+        f"step_spl.steps: {count_steps} / oracle {oracle_step_count}",
+    ]
 
 def main(cfg: DictConfig) -> None:
     global msg_observations, global_action, ros_state, fusion_threshold
@@ -453,7 +523,13 @@ def main(cfg: DictConfig) -> None:
         if need_video:
             frame = observations_to_image(observations, info)
             info.pop("top_down_map")
-            frame = overlay_frame(frame, info)
+            frame = overlay_frame(
+                frame,
+                info,
+                additional=step_spl_overlay_lines(
+                    info, oracle_step_count, count_steps
+                ),
+            )
             vis_frames = [frame]
 
         # Start publishing basic information and trigger messages
@@ -557,7 +633,13 @@ def main(cfg: DictConfig) -> None:
             if need_video:
                 frame = observations_to_image(observations, info)
                 info.pop("top_down_map")
-                frame = overlay_frame(frame, info)
+                frame = overlay_frame(
+                    frame,
+                    info,
+                    additional=step_spl_overlay_lines(
+                        info, oracle_step_count, count_steps
+                    ),
+                )
                 vis_frames.append(frame)
 
             # Track if agent has passed close to the target
@@ -753,6 +835,23 @@ if __name__ == "__main__":
         # ConfigStore is populated in time for OVON's own config to resolve.
         if dataset == "ovon":
             import ovon  # noqa: F401
+
+            # Registers OVONDistanceToGoal, which config/habitat_eval_ovon.yaml
+            # selects via `distance_to_goal.type`. ovon/__init__.py's own
+            # `from ovon.measurements import collision_penalty, nav, sum_reward`
+            # is commented out (2026-08-04) to keep the CLIP/training stack out of
+            # the import path -- correct for collision_penalty and sum_reward,
+            # which are RL reward shaping, but `nav` was collateral. Its chain is
+            # ovon.utils.utils -> ovon.models.encoders.resnet_gn, and both
+            # ovon/models/__init__.py and ovon/models/encoders/__init__.py are
+            # empty while resnet_gn imports only math and torch.nn -- no clip.
+            # Importing the module directly rather than editing the vendored
+            # ovon/__init__.py, same as `ovon.task.simulator` was handled.
+            #
+            # nav.py also registers OVONObjectGoalID and FailureModeMeasure, which
+            # load pickles -- but only inside __init__, which never runs unless a
+            # config requests them. Registration alone is inert.
+            import ovon.measurements.nav  # noqa: F401
 
         cfg_name = f"habitat_eval_{dataset}"
         # Compose the chosen config and pass through extra Hydra overrides

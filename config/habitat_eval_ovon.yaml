@@ -42,6 +42,33 @@ habitat:
         # inconsistency -- but it must be stated explicitly in the methodology,
         # since SR is not directly comparable across columns at different radii.
         success_distance: 0.25
+      distance_to_goal:
+        # OVON's own measure, not habitat's stock DistanceToGoal. Every one of the
+        # six config/experiments/*.yaml in the OVON repo sets exactly this line, so
+        # it is what their reported Table III numbers were produced with.
+        #
+        # Easy to miss: OVONDistanceToGoalConfig is defined in ovon/config.py but
+        # never cs.store()d, so the only thing that selects the measure is this
+        # `type` override on habitat's stock config node. Without it we silently
+        # get habitat's DistanceToGoal, which is what every ApexNav OVON run before
+        # 2026-08-20 used.
+        #
+        # The difference (ovon/measurements/nav.py:45-59): OVONDistanceToGoal adds
+        # the episode's `children_object_categories` view points to the candidate
+        # set, so a `table` episode also succeeds on a `desk`, `cloth` on a `towel`,
+        # `sink` on a `washbasin`. 149 of the 3000 val_seen episodes (5.0%) have a
+        # non-empty children list -- 94 of them table->desk. All 174 child lookups
+        # resolve against goals_by_category (0 misses), adding a median +50% more
+        # view points to those episodes. Extra view points can only lower the min
+        # geodesic distance, so stock DistanceToGoal is strictly STRICTER than the
+        # benchmark, never more lenient.
+        #
+        # `distance_to` is inherited as VIEW_POINTS from habitat's objectnav.yaml
+        # and OVONDistanceToGoal reads only that field, so no new config node is
+        # needed. Registration is handled by `import ovon.measurements.nav` in
+        # habitat_evaluation.py's __main__ -- ovon/__init__.py has that import
+        # commented out.
+        type: OVONDistanceToGoal
   simulator:
     # Pinned explicitly rather than left to ovon's cs.store override of
     # habitat_config_base, so this file states the embodiment it is running.

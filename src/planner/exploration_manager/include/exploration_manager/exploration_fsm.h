@@ -40,6 +40,13 @@ constexpr double ACTION_ANGLE = M_PI / 6.0;
 
 // Distances (m)
 constexpr double STUCKING_DISTANCE = 0.05;       // consider stuck if movement < this
+// NOTE (2026-08-20): do NOT "sync" this with habitat's success_distance -- they measure
+// different things. This is a Euclidean radius around the agent's OWN estimated object
+// position (a single point). success_distance is a geodesic radius around the nearest of
+// a dense grid of precomputed view_points (~0.085-0.09 m spacing, covering radius ~0.06 m),
+// so 0.1 there means "standing anywhere in the navigable region the object is visible
+// from", not "within 10 cm of the object". Tightening this to 0.10 to match would shrink
+// the agent's stop window against a single point for no benefit.
 constexpr double REACH_DISTANCE = 0.20;          // reach object distance
 constexpr double SOFT_REACH_DISTANCE = 0.45;     // soft reach distance for object
 constexpr double LOCAL_DISTANCE = 0.80;          // local target lookahead
