@@ -36,10 +36,12 @@ any index -- that is what lets a playlist be played in an arbitrary order rather
 than forced ascending. Verified on 2026-08-25 that cycle=True leaves the
 index->episode mapping byte-identical and wraps cleanly back to index 0.
 
-Results land in videos/human/test_<dataset>_<split>/ as record.txt (running
-averages) + continue.txt (running totals), the same pair habitat_evaluation.py
-writes, plus playlist.json pinning which episodes the run covers. Re-running the
-same command resumes from continue.txt rather than starting over.
+Results land in videos/human/test_<dataset>_<split>/<playlist-stem>/ as record.txt
+(running averages) + continue.txt (running totals), the same pair
+habitat_evaluation.py writes, plus playlist.json pinning which episodes the run
+covers. The per-playlist subfolder (or .../single/ for a bare --episode) keeps
+each playlist's results separate instead of forcing one pin per split. Re-running
+the same command resumes from that folder's continue.txt rather than starting over.
 
 `--nv` on its own is NOT enough: habitat-sim opens a windowless EGL context, and
 without the glvnd bind + the host driver's EGL libs on LD_LIBRARY_PATH it dies at
@@ -588,7 +590,9 @@ def main():
     ap.add_argument("--panels", default="rgb", choices=["rgb", "all"])
     ap.add_argument("--port", type=int, default=8080)
     ap.add_argument("--out",
-                    help="output dir (default: <repo>/videos/human/test_<dataset>_<split>)")
+                    help="output dir (default: <repo>/videos/human/test_<dataset>_<split>/"
+                         "<playlist-stem>, or .../single for --episode). Passed "
+                         "verbatim when given -- no per-playlist subfolder is added.")
     ap.add_argument("--no-save", action="store_true",
                     help="practice run: score on screen but write nothing to disk, "
                          "and ignore any existing results in the output dir")
@@ -621,9 +625,18 @@ def main():
     playlist = load_playlist(args.playlist) if args.playlist else [args.episode or 0]
 
     # Mirrors the agent's videos/test_<dataset>_<split>/ layout so human and agent
-    # runs sit side by side and analyze_failures.py can read either.
+    # runs sit side by side and analyze_failures.py can read either. Each playlist
+    # then gets its own subfolder under that, keyed by the playlist filename stem
+    # (--episode runs go under .../single, matching the agent's single/ dir) -- so
+    # two playlists for the same split keep independent record.txt/continue.txt
+    # instead of colliding on one pin. --out, when given, is used verbatim.
+    if args.playlist:
+        subdir = os.path.splitext(os.path.basename(args.playlist))[0]
+    else:
+        subdir = "single"
     out_dir = args.out or os.path.join(
-        REPO_ROOT, "videos", "human", f"test_{args.dataset}_{cfg.habitat.dataset.split}"
+        REPO_ROOT, "videos", "human",
+        f"test_{args.dataset}_{cfg.habitat.dataset.split}", subdir,
     )
 
     # --no-save is for practice/probing runs: play an episode, see its score on
