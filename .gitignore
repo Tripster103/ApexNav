@@ -17,7 +17,6 @@ lockfiles
 yolov7
 traced_model.pt
 GroundingDINO
-habitat-lab
 
 # src/planner/utils/lkh_mtsp_solver/LKH/LKH
 # src/planner/utils/lkh_mtsp_solver/LKH/SRC/OBJ/*.o
