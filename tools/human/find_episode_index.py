@@ -16,11 +16,11 @@ The index it prints is also (No. task number - 1) in the record.txt written by a
 full sweep: habitat_evaluation.py increments num_total before write_record, so
 iterator index i is logged as "No.(i+1) task".
 
-Usage (inside the apexnav container, from the ApexNav directory):
-    python find_episode_index.py --dataset hm3dv1 \
+Usage (inside the apexnav container; runs from any directory):
+    python tools/human/find_episode_index.py --dataset hm3dv1 \
         --scene 00839-zt1RVoi7PcG --episode-id 118
-    python find_episode_index.py --dataset hm3dv1 --index 1999   # reverse lookup
-    python find_episode_index.py --dataset hm3dv1 --list | head
+    python tools/human/find_episode_index.py --dataset hm3dv1 --index 1999  # reverse
+    python tools/human/find_episode_index.py --dataset hm3dv1 --list | head
 
 --scene is matched as a substring of the full scene_id path, so the short
 "00839-zt1RVoi7PcG" form from a record.txt line is enough.
@@ -28,10 +28,20 @@ Usage (inside the apexnav container, from the ApexNav directory):
 Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """
 import argparse
+import os
 import sys
 
-from hydra import initialize, compose
+from hydra import initialize_config_dir, compose
 from habitat.datasets import make_dataset
+
+
+# Repo paths resolved from this file, not the working directory. This script sits
+# two levels below the ApexNav root, and hydra's initialize(config_path=...)
+# resolves relative to the *calling file* -- a bare "config" would look under
+# tools/human/ now that this no longer lives in the root. An absolute
+# initialize_config_dir is immune to that and to wherever the caller is cd'd.
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+CONFIG_DIR = os.path.join(REPO_ROOT, "config")
 
 
 def build_iterator(dataset):
@@ -41,7 +51,7 @@ def build_iterator(dataset):
         # it make_dataset("OVON-v1", ...) raises "Could not find dataset OVON-v1".
         import ovon  # noqa: F401
 
-    with initialize(version_base=None, config_path="config"):
+    with initialize_config_dir(version_base=None, config_dir=CONFIG_DIR):
         cfg = compose(config_name=f"habitat_eval_{dataset}")
 
     d = make_dataset(cfg.habitat.dataset.type, config=cfg.habitat.dataset)

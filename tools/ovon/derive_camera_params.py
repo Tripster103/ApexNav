@@ -25,10 +25,20 @@ Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 import argparse
 import contextlib
 import math
+import os
 import sys
 
 import numpy as np
-from hydra import initialize, compose
+from hydra import initialize_config_dir, compose
+
+
+# Repo paths resolved from this file, not the working directory. This script sits
+# two levels below the ApexNav root, and hydra's initialize(config_path=...)
+# resolves relative to the *calling file* -- a bare "config" would look under
+# tools/ovon/ now that this no longer lives in the root. An absolute
+# initialize_config_dir is immune to that and to wherever the caller is cd'd.
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+CONFIG_DIR = os.path.join(REPO_ROOT, "config")
 
 
 def _load(dataset, overrides):
@@ -52,7 +62,7 @@ def _load(dataset, overrides):
         if dataset == "ovon":
             import ovon  # noqa: F401
 
-        with initialize(version_base=None, config_path="config"):
+        with initialize_config_dir(version_base=None, config_dir=CONFIG_DIR):
             return compose(config_name=f"habitat_eval_{dataset}", overrides=overrides)
 
 

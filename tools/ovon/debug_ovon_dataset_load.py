@@ -26,7 +26,7 @@ Run via jobs/apptainer_run.sh (needs the full --nv/EGL bind set now that sim
 construction is in scope, unlike the original dataset-only version of this
 script):
   bash /scratch2/ml20/btripcon/jobs/apptainer_run.sh \
-    /scratch2/ml20/btripcon/conda/envs/apexnav/bin/python debug_ovon_dataset_load.py
+    /scratch2/ml20/btripcon/conda/envs/apexnav/bin/python tools/ovon/debug_ovon_dataset_load.py
 
 Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """
@@ -64,10 +64,10 @@ def _timed_load_from_file(self, fname, scenes_dir):
 PointNavDatasetV1._load_from_file = _timed_load_from_file
 
 log("Composing Hydra config (habitat_eval_ovon)...")
-from hydra import initialize, compose  # noqa: E402
+from hydra import initialize_config_dir, compose  # noqa: E402
 from habitat.config.default import patch_config  # noqa: E402
 
-with initialize(version_base=None, config_path="config"):
+with initialize_config_dir(version_base=None, config_dir=CONFIG_DIR):
     cfg = compose(config_name="habitat_eval_ovon")
 # habitat_evaluation.py calls this after compose() too (it's what fills in
 # habitat.simulator.agents_order for single-agent setups) -- this debug

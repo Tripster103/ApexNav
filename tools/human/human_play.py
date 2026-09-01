@@ -18,15 +18,23 @@ which carries the full 9-bind NVIDIA/EGL set and the cache env vars:
     # on a GPU node (inside your own allocation, or a session that already has one):
     bash /scratch2/ml20/btripcon/jobs/run_human_play.sh --dataset hm3dv1 --episode 1999
 
-    # or a whole subset, played back to back:
+    # or a whole playlist, played back to back:
     bash /scratch2/ml20/btripcon/jobs/run_human_play.sh --dataset hm3dv1 \\
-        --playlist ../results/apexnav/baseline/hm3dv1/subset_.../metadata.json
+        --playlist /scratch2/ml20/btripcon/ApexNav/playlists/hm3dv1_random50_seed0.json
 
-Build a playlist with basic_utils/record_episode/make_subset.py, which selects on
-failure mode / target / scene / random sample out of an existing agent run and
-emits the 0-based indices as selection.indices_0based. Because both this and the
-sweep walk the same shuffle:false iterator, those indices mean the same episodes
-here. cycle:false means the playlist is walked in ascending index order only.
+Build a playlist with either of two tools, both of which emit the 0-based indices
+as selection.indices_0based:
+  tools/human/make_playlist.py              -- samples straight from the dataset
+      (stratified round-robin over scenes), for episodes nothing has run yet
+  basic_utils/record_episode/make_subset.py -- carves a slice out of an existing
+      agent run, selecting on failure mode / target / scene / random sample
+
+Because both this and the sweep walk the same shuffle:false iterator, those
+indices mean the same episodes here. This tool overrides iterator_options.cycle
+to True (the eval configs set it False) so the iterator can wrap around to reach
+any index -- that is what lets a playlist be played in an arbitrary order rather
+than forced ascending. Verified on 2026-08-25 that cycle=True leaves the
+index->episode mapping byte-identical and wraps cleanly back to index 0.
 
 Results land in videos/human/test_<dataset>_<split>/ as record.txt (running
 averages) + continue.txt (running totals), the same pair habitat_evaluation.py
@@ -60,13 +68,27 @@ import time
 
 import numpy as np
 
+# Repo paths resolved from this file, not the working directory. This script sits
+# two levels below the ApexNav root, which breaks two cwd assumptions it used to
+# get for free when it lived there:
+#   - hydra's initialize(config_path=...) resolves relative to the CALLING FILE,
+#     so a bare "config" would now look under tools/human/. Hence
+#     initialize_config_dir with an absolute path.
+#   - `python tools/human/human_play.py` puts tools/human on sys.path, NOT the
+#     repo root, so `import basic_utils...` below would fail. Hence the insert.
+# Both are also what let this be launched from any directory.
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+CONFIG_DIR = os.path.join(REPO_ROOT, "config")
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
+
 # Keep habitat's own logging off stdout so the Flask banner stays readable.
 os.environ.setdefault("MAGNUM_LOG", "quiet")
 os.environ.setdefault("HABITAT_SIM_LOG", "quiet")
 
 from flask import Flask, Response, jsonify, request
 from werkzeug.serving import WSGIRequestHandler
-from hydra import compose, initialize
+from hydra import compose, initialize_config_dir
 from PIL import Image
 
 import habitat
@@ -171,14 +193,14 @@ def load_playlist(path):
     if not idx:
         sys.exit(f"{path}: playlist is empty")
 
-    # The episode iterator is configured cycle:false, shuffle:false, so it only
-    # ever moves forward and never wraps -- a playlist can only be walked in
-    # ascending order. Sorting here (rather than erroring on an out-of-order
-    # spec) is safe because play order does not affect any per-episode metric.
-    # It does mean make_subset.py's --shuffle has no effect on playback.
-    ordered = sorted(dict.fromkeys(idx))
-    if ordered != list(idx):
-        print(f"note: playlist re-ordered ascending ({len(idx)} -> {len(ordered)} unique)",
+    # Play order is whatever the playlist says. main() sets cycle:True on the
+    # iterator, so it wraps and any index is reachable from any other -- there is
+    # no ascending-order constraint. Duplicates are dropped (first occurrence
+    # wins) because continue.txt counts episodes, so playing one twice would
+    # double-count it in every average.
+    ordered = list(dict.fromkeys(idx))
+    if len(ordered) != len(idx):
+        print(f"note: dropped {len(idx) - len(ordered)} duplicate playlist entries",
               flush=True)
     return ordered
 
@@ -225,6 +247,10 @@ class HumanSession:
         # Iterator index currently assigned to env.current_episode. Env.__init__
         # consumes index 0, so we start there.
         self.consumed = 0
+        # Dataset size, for the modular seek in load(). With cycle:True the
+        # iterator wraps after this many steps, so stepping (target - consumed)
+        # mod n_episodes always lands on `target` regardless of direction.
+        self.n_episodes = len(self.env.episodes)
 
         self.record_path = os.path.join(out_dir, "record.txt")
         self.continue_path = os.path.join(out_dir, "continue.txt")
@@ -263,18 +289,24 @@ class HumanSession:
             return
 
         target = self.playlist[position]
-        if target < self.consumed:
+        if not 0 <= target < self.n_episodes:
             sys.exit(
-                f"playlist index {target} is behind the iterator (at {self.consumed}); "
-                "iterator_options.cycle is false so it cannot rewind"
+                f"playlist index {target} is out of range for this dataset "
+                f"(0..{self.n_episodes - 1}) -- wrong --dataset for this playlist?"
             )
+        # Walk forward, wrapping if the target is behind us. cycle:True (set in
+        # main()) makes the iterator cyclic, so a backwards seek costs at most
+        # n_episodes iterator steps -- and iterator steps touch no simulator, so
+        # they are microseconds. The scene load in reset() below dominates either
+        # way, and at 1-2 episodes per scene that load happens regardless of order.
+        steps = (target - self.consumed) % self.n_episodes
         # Walk forward, then assign unconditionally -- the current_episode setter
         # clears _episode_from_iter_on_reset (env.py:161), so the reset() below
         # lands on exactly this episode instead of advancing past it. The
         # assignment matters even when the walk is zero-length, because a previous
         # reset() will have set that flag back to True (env.py:257).
         ep_obj = self.env.current_episode
-        for _ in range(target - self.consumed):
+        for _ in range(steps):
             ep_obj = next(self.env.episode_iterator)
         self.env.current_episode = ep_obj
         self.consumed = target
@@ -549,13 +581,14 @@ def main():
     ap.add_argument("--dataset", default="hm3dv1",
                     choices=["hm3dv1", "hm3dv2", "mp3d", "ovon"])
     ap.add_argument("--episode", type=int,
-                    help="single 0-based iterator index (NOT episode_id -- use find_episode_index.py)")
+                    help="single 0-based iterator index (NOT episode_id -- "
+                         "use tools/human/find_episode_index.py)")
     ap.add_argument("--playlist",
                     help="make_subset.py metadata.json, or a text file of 0-based indices")
     ap.add_argument("--panels", default="rgb", choices=["rgb", "all"])
     ap.add_argument("--port", type=int, default=8080)
     ap.add_argument("--out",
-                    help="output dir (default: videos/human/test_<dataset>_<split>)")
+                    help="output dir (default: <repo>/videos/human/test_<dataset>_<split>)")
     ap.add_argument("--no-save", action="store_true",
                     help="practice run: score on screen but write nothing to disk, "
                          "and ignore any existing results in the output dir")
@@ -567,7 +600,7 @@ def main():
     if args.dataset == "ovon":
         import ovon  # noqa: F401 -- registers OVON-v1, same as habitat_evaluation.py
 
-    with initialize(version_base=None, config_path="config"):
+    with initialize_config_dir(version_base=None, config_dir=CONFIG_DIR):
         cfg = compose(config_name=f"habitat_eval_{args.dataset}")
 
     # Same as habitat_evaluation.py:328, and required for the same reason: a raw
@@ -576,12 +609,21 @@ def main():
     # panels edits and before habitat.Env().
     cfg = patch_config(cfg)
 
+    # Let the iterator wrap, so a playlist can be played in any order rather than
+    # forced ascending -- see load(). Done here rather than in the five
+    # config/habitat_eval_*.yaml files on purpose: the agent sweep must keep
+    # cycle:false, or habitat_evaluation.py would loop the dataset forever instead
+    # of stopping at the end. Only this tool, which walks a bounded playlist, is
+    # safe to make cyclic.
+    with habitat.config.read_write(cfg):
+        cfg.habitat.environment.iterator_options.cycle = True
+
     playlist = load_playlist(args.playlist) if args.playlist else [args.episode or 0]
 
     # Mirrors the agent's videos/test_<dataset>_<split>/ layout so human and agent
     # runs sit side by side and analyze_failures.py can read either.
     out_dir = args.out or os.path.join(
-        "videos", "human", f"test_{args.dataset}_{cfg.habitat.dataset.split}"
+        REPO_ROOT, "videos", "human", f"test_{args.dataset}_{cfg.habitat.dataset.split}"
     )
 
     # --no-save is for practice/probing runs: play an episode, see its score on
