@@ -16,11 +16,11 @@ Do NOT hand-type an `apptainer exec --bind ...` line for this. Use the wrapper,
 which carries the full 9-bind NVIDIA/EGL set and the cache env vars:
 
     # on a GPU node (inside your own allocation, or a session that already has one):
-    bash /scratch2/ml20/btripcon/jobs/run_human_play.sh --dataset hm3dv1 --episode 1999
+    bash /scratch2/ml20/btripcon/FYP/jobs/run_human_play.sh --dataset hm3dv1 --episode 1999
 
     # or a whole playlist, played back to back:
-    bash /scratch2/ml20/btripcon/jobs/run_human_play.sh --dataset hm3dv1 \\
-        --playlist /scratch2/ml20/btripcon/ApexNav/playlists/hm3dv1_random50_seed0.json
+    bash /scratch2/ml20/btripcon/FYP/jobs/run_human_play.sh --dataset hm3dv1 \\
+        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1_random50_seed0.json
 
 Build a playlist with either of two tools, both of which emit the 0-based indices
 as selection.indices_0based:

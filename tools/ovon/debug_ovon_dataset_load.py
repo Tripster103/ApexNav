@@ -25,8 +25,8 @@ via this script instead of burning 15+ min bringing up the full ROS stack.
 Run via jobs/apptainer_run.sh (needs the full --nv/EGL bind set now that sim
 construction is in scope, unlike the original dataset-only version of this
 script):
-  bash /scratch2/ml20/btripcon/jobs/apptainer_run.sh \
-    /scratch2/ml20/btripcon/conda/envs/apexnav/bin/python tools/ovon/debug_ovon_dataset_load.py
+  bash /scratch2/ml20/btripcon/FYP/jobs/apptainer_run.sh \
+    /scratch2/ml20/btripcon/FYP/conda/envs/apexnav/bin/python tools/ovon/debug_ovon_dataset_load.py
 
 Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """

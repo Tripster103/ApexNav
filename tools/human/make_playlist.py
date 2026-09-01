@@ -39,7 +39,7 @@ Usage (inside the apexnav container; runs from any directory):
 
 Writes <repo>/playlists/<dataset>_<name>.json. Play it with:
     bash jobs/run_human_play.sh --dataset hm3dv1 \\
-        --playlist /scratch2/ml20/btripcon/ApexNav/playlists/hm3dv1_random50_seed0.json
+        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1_random50_seed0.json
 
 Note on datasets: OVON's val splits reuse HM3Dv2's 36 scenes exactly -- the
 seen/unseen axis is object *categories* (79 vs 49, zero overlap), not scenes. So
@@ -235,7 +235,7 @@ def main():
         json.dump(meta, fh, indent=2)
     print(f"\nwrote {out_path}")
     print(
-        f"play it with:\n  bash /scratch2/ml20/btripcon/jobs/run_human_play.sh "
+        f"play it with:\n  bash /scratch2/ml20/btripcon/FYP/jobs/run_human_play.sh "
         f"--dataset {args.dataset} \\\n      --playlist {os.path.abspath(out_path)}"
     )
 
