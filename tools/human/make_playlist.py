@@ -223,18 +223,29 @@ def deal_disjoint_sets(picked, n_sets, rng):
     means a scene holding >= n_sets pool episodes lands in every set, which is
     what --n * --sets stratified over the split always produces here.
 
-    The starting set rotates per scene so set A is not systematically the one
-    that gets the extra episode from every odd-sized scene.
+    Two-level balance, because coverage alone is not enough. Each episode goes
+    to a set holding the fewest of ITS OWN scene (that is what spreads a scene
+    across every set), and among those, to the set that is globally smallest
+    (that is what keeps the sets the same size). A plain rotating-offset deal
+    gets the first property but not the second -- it produced 49/50/51 rather
+    than 50/50/50 on a 150-episode pool -- and unequal sets mean the per-set
+    averages a human benchmark reports are over different N.
     """
     by_scene = defaultdict(list)
     for r in picked:
         by_scene[r["scene"]].append(r)
     sets = [[] for _ in range(n_sets)]
-    for offset, scene in enumerate(sorted(by_scene)):
+    per_scene = [Counter() for _ in range(n_sets)]
+    for scene in sorted(by_scene):
         eps = by_scene[scene]
         rng.shuffle(eps)
-        for j, ep in enumerate(eps):
-            sets[(j + offset) % n_sets].append(ep)
+        for ep in eps:
+            fewest = min(per_scene[i][scene] for i in range(n_sets))
+            cands = [i for i in range(n_sets) if per_scene[i][scene] == fewest]
+            smallest = min(len(sets[i]) for i in cands)
+            i = rng.choice([c for c in cands if len(sets[c]) == smallest])
+            sets[i].append(ep)
+            per_scene[i][scene] += 1
     return sets
 
 
