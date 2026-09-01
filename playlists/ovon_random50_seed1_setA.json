@@ -1,0 +1,496 @@
+{
+  "generated": "2026-09-01T13:51:33",
+  "generator": "make_playlist.py + split_playlists.py",
+  "source": {
+    "dataset": "ovon",
+    "n_episodes_total": 3000,
+    "n_scenes_total": 36
+  },
+  "selection": {
+    "name": "random50_seed1_setA",
+    "n_selected": 50,
+    "indexing": "0-based test_epi_num into the habitat episode iterator",
+    "strategy": "round-robin deal of one stratified pool draw into N sets; sets are mutually disjoint on (scene, episode_id)",
+    "n": 50,
+    "seed": 1,
+    "target": null,
+    "scene": null,
+    "indices_0based": [
+      2303,
+      2802,
+      100,
+      50,
+      2729,
+      2231,
+      2756,
+      564,
+      2867,
+      1328,
+      1671,
+      1627,
+      2664,
+      2179,
+      1612,
+      1956,
+      710,
+      2197,
+      1882,
+      133,
+      918,
+      1421,
+      2260,
+      1347,
+      2521,
+      1274,
+      1650,
+      751,
+      1530,
+      2906,
+      1429,
+      2018,
+      319,
+      1854,
+      1009,
+      2108,
+      402,
+      1983,
+      1771,
+      790,
+      2902,
+      525,
+      1342,
+      229,
+      1026,
+      1853,
+      2545,
+      2517,
+      1975,
+      29
+    ],
+    "derived_from_pool": {
+      "name": "pool_seed1",
+      "seed": 1,
+      "n": 150
+    },
+    "disjoint_with": [
+      "ovon_random50_seed1_setB.json",
+      "ovon_random50_seed1_setC.json"
+    ]
+  },
+  "scene_counts": {
+    "cvZr5TUy5C5": 4,
+    "ziup5kvtCCR": 3,
+    "XB4GS9ShBRE": 3,
+    "p53SfW6mjZe": 3,
+    "mL8ThkuaVTM": 3,
+    "h1zeeAwLh9Z": 3,
+    "svBbv1Pavdk": 3,
+    "5cdEh9F2hJL": 2,
+    "4ok3usBNeis": 2,
+    "y9hTuugGdiq": 2,
+    "q3zU7Yy5E5s": 2,
+    "GLAQ4DNUx5U": 2,
+    "Nfvxx8J5NCo": 2,
+    "q5QZSEeHe5g": 1,
+    "yr17PDCnDDW": 1,
+    "DYehNKdT76V": 1,
+    "wcojb4TFT35": 1,
+    "MHPLjHsuG27": 1,
+    "a8BtkwhxdRV": 1,
+    "VBzV5z6i1WS": 1,
+    "bxsVRursffK": 1,
+    "bCPU9suPUw9": 1,
+    "mv2HUxq3B53": 1,
+    "7MXmsvcQjpJ": 1,
+    "BAbdmeyTvMZ": 1,
+    "eF36g7L6Z9M": 1,
+    "HY1NcmCgn3n": 1,
+    "CrMo8WxCyVb": 1,
+    "6s7QHgap2fW": 1
+  },
+  "target_counts": {
+    "sink": 4,
+    "bed": 4,
+    "desk": 4,
+    "chair": 3,
+    "toilet": 2,
+    "bathtub": 2,
+    "oven": 2,
+    "cabinet": 2,
+    "stove": 2,
+    "pillar": 2,
+    "couch": 2,
+    "washing machine": 2,
+    "kitchen shelf": 1,
+    "towel": 1,
+    "blanket": 1,
+    "bathroom towel": 1,
+    "bench": 1,
+    "case": 1,
+    "basket": 1,
+    "sink cabinet": 1,
+    "heater": 1,
+    "kitchen lower cabinet": 1,
+    "sofa chair": 1,
+    "closet": 1,
+    "oven and stove": 1,
+    "table": 1,
+    "tv": 1,
+    "wardrobe": 1,
+    "bathroom cabinet": 1,
+    "box": 1,
+    "window": 1
+  },
+  "per_episode": [
+    {
+      "index": 2303,
+      "scene": "q5QZSEeHe5g",
+      "scene_id": "data/scene_datasets/hm3d/val//00844-q5QZSEeHe5g/q5QZSEeHe5g.basis.glb",
+      "episode_id": "254",
+      "category": "toilet"
+    },
+    {
+      "index": 2802,
+      "scene": "yr17PDCnDDW",
+      "scene_id": "data/scene_datasets/hm3d/val//00831-yr17PDCnDDW/yr17PDCnDDW.basis.glb",
+      "episode_id": "2414",
+      "category": "kitchen shelf"
+    },
+    {
+      "index": 100,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val//00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "892",
+      "category": "towel"
+    },
+    {
+      "index": 50,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val//00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "5357",
+      "category": "blanket"
+    },
+    {
+      "index": 2729,
+      "scene": "y9hTuugGdiq",
+      "scene_id": "data/scene_datasets/hm3d/val//00808-y9hTuugGdiq/y9hTuugGdiq.basis.glb",
+      "episode_id": "2959",
+      "category": "bathtub"
+    },
+    {
+      "index": 2231,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val//00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "2194",
+      "category": "bathroom towel"
+    },
+    {
+      "index": 2756,
+      "scene": "y9hTuugGdiq",
+      "scene_id": "data/scene_datasets/hm3d/val//00808-y9hTuugGdiq/y9hTuugGdiq.basis.glb",
+      "episode_id": "5766",
+      "category": "oven"
+    },
+    {
+      "index": 564,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val//00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "2317",
+      "category": "cabinet"
+    },
+    {
+      "index": 2867,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val//00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "3361",
+      "category": "bench"
+    },
+    {
+      "index": 1328,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val//00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "2878",
+      "category": "sink"
+    },
+    {
+      "index": 1671,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val//00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "9609",
+      "category": "case"
+    },
+    {
+      "index": 1627,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val//00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "5189",
+      "category": "bed"
+    },
+    {
+      "index": 2664,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val//00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "8739",
+      "category": "stove"
+    },
+    {
+      "index": 2179,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val//00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "10869",
+      "category": "pillar"
+    },
+    {
+      "index": 1612,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val//00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "3645",
+      "category": "stove"
+    },
+    {
+      "index": 1956,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val//00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "4714",
+      "category": "chair"
+    },
+    {
+      "index": 710,
+      "scene": "GLAQ4DNUx5U",
+      "scene_id": "data/scene_datasets/hm3d/val//00861-GLAQ4DNUx5U/GLAQ4DNUx5U.basis.glb",
+      "episode_id": "1331",
+      "category": "chair"
+    },
+    {
+      "index": 2197,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val//00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "12748",
+      "category": "basket"
+    },
+    {
+      "index": 1882,
+      "scene": "h1zeeAwLh9Z",
+      "scene_id": "data/scene_datasets/hm3d/val//00815-h1zeeAwLh9Z/h1zeeAwLh9Z.basis.glb",
+      "episode_id": "9872",
+      "category": "sink cabinet"
+    },
+    {
+      "index": 133,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val//00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "4245",
+      "category": "bed"
+    },
+    {
+      "index": 918,
+      "scene": "MHPLjHsuG27",
+      "scene_id": "data/scene_datasets/hm3d/val//00869-MHPLjHsuG27/MHPLjHsuG27.basis.glb",
+      "episode_id": "1868",
+      "category": "heater"
+    },
+    {
+      "index": 1421,
+      "scene": "a8BtkwhxdRV",
+      "scene_id": "data/scene_datasets/hm3d/val//00849-a8BtkwhxdRV/a8BtkwhxdRV.basis.glb",
+      "episode_id": "7070",
+      "category": "desk"
+    },
+    {
+      "index": 2260,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val//00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "5337",
+      "category": "kitchen lower cabinet"
+    },
+    {
+      "index": 1347,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val//00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "5077",
+      "category": "couch"
+    },
+    {
+      "index": 2521,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val//00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "1819",
+      "category": "toilet"
+    },
+    {
+      "index": 1274,
+      "scene": "VBzV5z6i1WS",
+      "scene_id": "data/scene_datasets/hm3d/val//00871-VBzV5z6i1WS/VBzV5z6i1WS.basis.glb",
+      "episode_id": "6773",
+      "category": "oven"
+    },
+    {
+      "index": 1650,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val//00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "7632",
+      "category": "sofa chair"
+    },
+    {
+      "index": 751,
+      "scene": "GLAQ4DNUx5U",
+      "scene_id": "data/scene_datasets/hm3d/val//00861-GLAQ4DNUx5U/GLAQ4DNUx5U.basis.glb",
+      "episode_id": "6396",
+      "category": "sink"
+    },
+    {
+      "index": 1530,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val//00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "4937",
+      "category": "closet"
+    },
+    {
+      "index": 2906,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val//00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "8362",
+      "category": "bathtub"
+    },
+    {
+      "index": 1429,
+      "scene": "bCPU9suPUw9",
+      "scene_id": "data/scene_datasets/hm3d/val//00847-bCPU9suPUw9/bCPU9suPUw9.basis.glb",
+      "episode_id": "930",
+      "category": "bed"
+    },
+    {
+      "index": 2018,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val//00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "2970",
+      "category": "oven and stove"
+    },
+    {
+      "index": 319,
+      "scene": "7MXmsvcQjpJ",
+      "scene_id": "data/scene_datasets/hm3d/val//00823-7MXmsvcQjpJ/7MXmsvcQjpJ.basis.glb",
+      "episode_id": "3983",
+      "category": "table"
+    },
+    {
+      "index": 1854,
+      "scene": "h1zeeAwLh9Z",
+      "scene_id": "data/scene_datasets/hm3d/val//00815-h1zeeAwLh9Z/h1zeeAwLh9Z.basis.glb",
+      "episode_id": "6716",
+      "category": "desk"
+    },
+    {
+      "index": 1009,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val//00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "2837",
+      "category": "sink"
+    },
+    {
+      "index": 2108,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val//00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "3445",
+      "category": "tv"
+    },
+    {
+      "index": 402,
+      "scene": "BAbdmeyTvMZ",
+      "scene_id": "data/scene_datasets/hm3d/val//00827-BAbdmeyTvMZ/BAbdmeyTvMZ.basis.glb",
+      "episode_id": "348",
+      "category": "cabinet"
+    },
+    {
+      "index": 1983,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val//00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "7211",
+      "category": "wardrobe"
+    },
+    {
+      "index": 1771,
+      "scene": "eF36g7L6Z9M",
+      "scene_id": "data/scene_datasets/hm3d/val//00821-eF36g7L6Z9M/eF36g7L6Z9M.basis.glb",
+      "episode_id": "6172",
+      "category": "desk"
+    },
+    {
+      "index": 790,
+      "scene": "HY1NcmCgn3n",
+      "scene_id": "data/scene_datasets/hm3d/val//00894-HY1NcmCgn3n/HY1NcmCgn3n.basis.glb",
+      "episode_id": "1080",
+      "category": "pillar"
+    },
+    {
+      "index": 2902,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val//00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "7640",
+      "category": "bathroom cabinet"
+    },
+    {
+      "index": 525,
+      "scene": "CrMo8WxCyVb",
+      "scene_id": "data/scene_datasets/hm3d/val//00810-CrMo8WxCyVb/CrMo8WxCyVb.basis.glb",
+      "episode_id": "6875",
+      "category": "couch"
+    },
+    {
+      "index": 1342,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val//00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "4110",
+      "category": "box"
+    },
+    {
+      "index": 229,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val//00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "4675",
+      "category": "washing machine"
+    },
+    {
+      "index": 1026,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val//00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "4658",
+      "category": "bed"
+    },
+    {
+      "index": 1853,
+      "scene": "h1zeeAwLh9Z",
+      "scene_id": "data/scene_datasets/hm3d/val//00815-h1zeeAwLh9Z/h1zeeAwLh9Z.basis.glb",
+      "episode_id": "6861",
+      "category": "desk"
+    },
+    {
+      "index": 2545,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val//00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "4065",
+      "category": "chair"
+    },
+    {
+      "index": 2517,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val//00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "1041",
+      "category": "window"
+    },
+    {
+      "index": 1975,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val//00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "6912",
+      "category": "sink"
+    },
+    {
+      "index": 29,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val//00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "2632",
+      "category": "washing machine"
+    }
+  ]
+}
