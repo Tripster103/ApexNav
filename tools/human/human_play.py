@@ -96,7 +96,6 @@ from werkzeug.serving import WSGIRequestHandler
 # run longer than that on a cold filesystem, and a cut mid-response desyncs the
 # browser from the server-side episode counter.
 REQUEST_TIMEOUT_S = 120
-ORACLE_TIME_BUDGET_S = 45
 from hydra import compose, initialize_config_dir
 from PIL import Image
 
@@ -155,22 +154,15 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
 
     follower = ShortestPathFollower(env.sim, success_distance, False)
     oracle_steps = 0
-    # Wall-clock cap: this runs on the Flask request thread inside POST /next, so
-    # a slow rollout (long path + cold filesystem) is what makes the browser's
-    # fetch('/next') hit WSGIRequestHandler.timeout and desync the UI. Enclosed
-    # mp3d targets like `shower` are the ones that hit it. If we blow the budget,
-    # degrade to max_episode_steps -- identical to the except branch below, and
-    # StepSPL then just equals success for that episode.
-    t0 = time.time()
+    # Deliberately NOT time-capped. A wall-clock cap was tried (2026-09-03) and
+    # reverted: falling back to max_episode_steps makes
+    # step_spl = success * (500 / max(steps, 500, 1)) = success, i.e. it awards
+    # StepSPL 1.0 to any successful episode whose oracle was never computed.
+    # Silently inflating the metric is worse than a slow request; the request
+    # side is handled by REQUEST_TIMEOUT_S instead.
     try:
         action = follower.get_next_action(nearest)
         while action != HabitatSimActions.stop and oracle_steps < max_episode_steps:
-            if time.time() - t0 > ORACLE_TIME_BUDGET_S:
-                print(f"[StepSPL WARNING] oracle rollout exceeded "
-                      f"{ORACLE_TIME_BUDGET_S}s after {oracle_steps} steps -- "
-                      "treating as max_episode_steps")
-                oracle_steps = max_episode_steps
-                break
             env.sim.step(action)
             oracle_steps += 1
             action = follower.get_next_action(nearest)
@@ -811,8 +803,8 @@ def main():
     # episodes are unaffected.
     #
     # REQUEST_TIMEOUT_S is generous because a legit /next (reset + up-to-500-step
-    # oracle rollout) is the long pole; ORACLE_TIME_BUDGET_S caps that rollout so
-    # the request still returns well inside the window. A wedged VS Code probe
+    # oracle rollout) is the long pole and is deliberately uncapped so StepSPL
+    # stays exact. A wedged VS Code probe
     # socket now stalls the thread that long in the worst case, which is rare and
     # preferable to cutting real episode loads. No keep-alive (HTTP/1.0), so
     # every connection is accept -> read -> respond -> close.
