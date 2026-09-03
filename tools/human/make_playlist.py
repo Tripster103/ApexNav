@@ -111,34 +111,70 @@ def scan(dataset):
 
 
 def stratified_sample(rows, n, rng):
-    """Round-robin over scenes, one random episode per scene per pass.
+    """Pick n episodes: first guarantee coverage of every scene AND every goal
+    category (budget permitting), then fill the rest round-robin over scenes so
+    no scene dominates.
 
-    Scenes are visited in a shuffled order and each scene's own episodes are
-    shuffled, so the draw is uniform within a scene and the *first* pass is a
-    uniform sample of scenes. Passes continue until n episodes are collected or
-    every episode is exhausted.
+    The category pass is what makes the multi-set case cover the full label set.
+    A single 50-episode set cannot hold all 79 hm3d-ovon categories (50 < 79),
+    but the 150-episode pool that `--sets 3` draws can, and deal_disjoint_sets
+    then puts every category somewhere in the union of the three sets. Without
+    it, plain scene round-robin left the union at 46/79 ovon and 19/21 mp3d
+    categories (measured on the seed-1 sets). Scene coverage is unchanged --
+    every split has fewer scenes than n, so the first scene pass still reaches
+    all of them.
     """
-    by_scene = defaultdict(list)
+    by_scene, by_cat = defaultdict(list), defaultdict(list)
     for r in rows:
         by_scene[r["scene"]].append(r)
+        by_cat[r["category"]].append(r)
+    for v in list(by_scene.values()) + list(by_cat.values()):
+        rng.shuffle(v)
 
-    scenes = sorted(by_scene)  # sort first so the shuffle is seed-reproducible
+    picked, taken = [], set()
+
+    def take(r):
+        picked.append(r)
+        taken.add(r["index"])
+
+    # Seed one episode per category, preferring one whose scene is still
+    # uncovered so the scene pass has less to do.
+    covered_scenes = set()
+    for cat in sorted(by_cat):
+        if len(picked) >= n:
+            break
+        avail = [r for r in by_cat[cat] if r["index"] not in taken]
+        if not avail:
+            continue
+        r = next((x for x in avail if x["scene"] not in covered_scenes), avail[0])
+        take(r)
+        covered_scenes.add(r["scene"])
+
+    # Seed one episode per still-uncovered scene.
+    for sc in sorted(by_scene):
+        if len(picked) >= n or sc in covered_scenes:
+            continue
+        avail = [r for r in by_scene[sc] if r["index"] not in taken]
+        if avail:
+            take(avail[0])
+            covered_scenes.add(sc)
+
+    # Fill the remainder round-robin over scenes.
+    left = {sc: [r for r in v if r["index"] not in taken]
+            for sc, v in by_scene.items()}
+    scenes = sorted(left)
     rng.shuffle(scenes)
-    for s in scenes:
-        rng.shuffle(by_scene[s])
-
-    picked = []
     while len(picked) < n:
         progressed = False
-        for s in scenes:
-            if not by_scene[s]:
+        for sc in scenes:
+            if not left[sc]:
                 continue
-            picked.append(by_scene[s].pop())
+            take(left[sc].pop())
             progressed = True
-            if len(picked) == n:
+            if len(picked) >= n:
                 break
         if not progressed:
-            break  # every scene exhausted
+            break  # every episode exhausted
     return picked
 
 
@@ -223,29 +259,41 @@ def deal_disjoint_sets(picked, n_sets, rng):
     means a scene holding >= n_sets pool episodes lands in every set, which is
     what --n * --sets stratified over the split always produces here.
 
-    Two-level balance, because coverage alone is not enough. Each episode goes
-    to a set holding the fewest of ITS OWN scene (that is what spreads a scene
-    across every set), and among those, to the set that is globally smallest
-    (that is what keeps the sets the same size). A plain rotating-offset deal
-    gets the first property but not the second -- it produced 49/50/51 rather
-    than 50/50/50 on a 150-episode pool -- and unequal sets mean the per-set
-    averages a human benchmark reports are over different N.
+    Two-level balance: each episode goes to a set holding the fewest of ITS OWN
+    scene (spreads a scene across sets), then to the globally smallest set
+    (keeps sets the same size -- a rotating-offset deal gave 49/50/51, and
+    unequal N makes the per-set averages incomparable). Category coverage is
+    not a deal concern: the pool already holds every category, so the union of
+    the sets does too regardless of how they are split.
     """
     by_scene = defaultdict(list)
     for r in picked:
         by_scene[r["scene"]].append(r)
     sets = [[] for _ in range(n_sets)]
     per_scene = [Counter() for _ in range(n_sets)]
+    per_cat = [Counter() for _ in range(n_sets)]
     for scene in sorted(by_scene):
         eps = by_scene[scene]
         rng.shuffle(eps)
         for ep in eps:
-            fewest = min(per_scene[i][scene] for i in range(n_sets))
-            cands = [i for i in range(n_sets) if per_scene[i][scene] == fewest]
-            smallest = min(len(sets[i]) for i in cands)
-            i = rng.choice([c for c in cands if len(sets[c]) == smallest])
+            # Hard keys in order: fewest of this scene, then smallest set. Both
+            # must hold -- that is what keeps every scene in every set AND the
+            # sets exactly equal. Category is only a soft tiebreak among the
+            # sets that already satisfy both, so it never costs size balance;
+            # it just spreads categories better when the choice is otherwise
+            # free. Full per-set category coverage is therefore NOT guaranteed
+            # (a category with fewer pool episodes than n_sets cannot reach
+            # every set); the union always has it, since the pool does.
+            f_s = min(per_scene[i][scene] for i in range(n_sets))
+            cands = [i for i in range(n_sets) if per_scene[i][scene] == f_s]
+            small = min(len(sets[i]) for i in cands)
+            cands = [i for i in cands if len(sets[i]) == small]
+            f_c = min(per_cat[i][ep["category"]] for i in cands)
+            cands = [i for i in cands if per_cat[i][ep["category"]] == f_c]
+            i = rng.choice(cands)
             sets[i].append(ep)
             per_scene[i][scene] += 1
+            per_cat[i][ep["category"]] += 1
     return sets
 
 
@@ -346,6 +394,23 @@ def main():
         print(f"pool    : {len(pool)} episodes dealt scene-wise into {args.sets} "
               "disjoint sets")
 
+    all_scenes = {r["scene"] for r in rows}
+    all_cats = {r["category"] for r in rows}
+    union_scenes = {r["scene"] for g in groups for r in g}
+    union_cats = {r["category"] for g in groups for r in g}
+    tag_all = "playlist" if args.sets == 1 else f"union of {args.sets} sets"
+    print(f"{tag_all}: scenes {len(union_scenes)}/{len(all_scenes)}"
+          f" | categories {len(union_cats)}/{len(all_cats)}")
+    miss_s = sorted(all_scenes - union_scenes)
+    miss_c = sorted(all_cats - union_cats)
+    if (miss_s or miss_c) and not args.allow_partial_coverage:
+        sys.exit(
+            f"{tag_all} misses "
+            + (f"{len(miss_s)} scenes ({', '.join(miss_s)}) " if miss_s else "")
+            + (f"{len(miss_c)} categories ({', '.join(miss_c)})" if miss_c else "")
+            + " -- refusing to write. Raise --n, or pass --allow-partial-coverage."
+        )
+
     written = []
     for lab, path, picked in zip(labels, paths, groups):
         picked, (min_gap, mean_gap) = spread_play_order(picked, rng)
@@ -359,16 +424,16 @@ def main():
             f" | per-scene {min(scene_counts.values())}-{max(scene_counts.values())}"
             f" | same-scene gap min={min_gap} mean={mean_gap:.1f}"
         )
-        print(f"  categories: {len(cat_counts)}  {dict(cat_counts.most_common(8))}")
+        print(f"  categories: {len(cat_counts)}/{len(all_cats)} covered"
+              f"  {dict(cat_counts.most_common(6))}")
         print(f"  first 10 indices (play order): {[r['index'] for r in picked[:10]]}")
 
-        if covered < n_scenes and not args.allow_partial_coverage:
+        if covered < n_scenes:
             missing = sorted(set(r["scene"] for r in rows) - set(scene_counts))
-            sys.exit(
-                f"{tag} covers only {covered}/{n_scenes} scenes, missing "
-                f"{', '.join(missing)} -- refusing to write. This should not "
-                "happen with --n >= scene count; pass --allow-partial-coverage "
-                "to override."
+            print(
+                f"  note: {tag} has {covered}/{n_scenes} scenes (missing "
+                f"{', '.join(missing)}); the union across sets is the guarantee",
+                file=sys.stderr,
             )
         if min_gap == 1:
             print(
@@ -390,8 +455,8 @@ def main():
                 "n_selected": len(picked),
                 "indexing": "0-based test_epi_num into the habitat episode iterator",
                 "strategy": (
-                    "stratified round-robin over scenes"
-                    + (f", dealt scene-wise into {args.sets} disjoint sets"
+                    "scene+category coverage-seeded, then round-robin over scenes"
+                    + (f", dealt scene- and category-balanced into {args.sets} disjoint sets"
                        if args.sets > 1 else "")
                     + ", then max-spread play order (adaptive same-scene cooldown,"
                       " random among eligible)"
@@ -405,6 +470,13 @@ def main():
                     "scenes_covered": covered,
                     "scenes_in_split": n_scenes,
                     "complete": covered == n_scenes,
+                },
+                "category_coverage": {
+                    "categories_covered": len(cat_counts),
+                    "categories_in_split": len(all_cats),
+                    "complete": len(cat_counts) == len(all_cats),
+                    "note": ("a single set of n<categories cannot be complete; "
+                             "the union of all sets is what covers the label set"),
                 },
                 "play_order": {
                     "min_same_scene_gap": min_gap,
