@@ -169,12 +169,23 @@ def is_on_same_floor(height, episode, ceiling_height=2.0):
     return ref <= height < ref + ceiling_height
 
 
-def load_playlist(path):
+def load_playlist(path, dataset):
     """Read a subset spec into a list of 0-based iterator indices.
 
-    Accepts make_subset.py's metadata.json (selection.indices_0based) or a plain
-    text file of one index per line ('#' comments allowed) -- the latter so a
-    playlist can be hand-written without running make_subset.py at all.
+    Accepts make_subset.py's/make_playlist.py's metadata.json
+    (selection.indices_0based) or a plain text file of one index per line ('#'
+    comments allowed) -- the latter so a playlist can be hand-written without
+    running either tool.
+
+    `dataset` is checked against the playlist's own source.dataset, because an
+    index means nothing without the split it was drawn from. Every split is
+    large enough to contain the others' indices (hm3dv1 2000, hm3dv2 1000, mp3d
+    2195, ovon 3000) and main() sets cycle:True so even an out-of-range index
+    wraps instead of raising -- so a mismatched pair does not fail, it silently
+    plays 50 unrelated episodes. Observed 2026-09-03: `--dataset hm3dv1` with the
+    hm3dv2 setA playlist played hm3dv1's index 245 (6s7QHgap2fW / plant) where
+    the playlist meant hm3dv2's (GLAQ4DNUx5U / chair), and scored it as a valid
+    run. A plain-text playlist carries no provenance and cannot be checked.
     """
     with open(path, "r", encoding="utf-8") as fh:
         text = fh.read()
@@ -185,6 +196,30 @@ def load_playlist(path):
             idx = meta["selection"]["indices_0based"]
         except (KeyError, TypeError):
             sys.exit(f"{path}: no selection.indices_0based -- not a make_subset.py metadata.json")
+        source = meta.get("source") or {}
+        src = source.get("dataset")
+        # make_subset.py's metadata has no source.dataset -- it only knows the
+        # continue.txt it carved from. That path always contains the dataset
+        # name (results/apexnav/<dataset>/<variant>/continue.txt), so sniff it.
+        # Heuristic, hence a warning rather than the hard exit below.
+        if not src:
+            cf = source.get("continue_file") or ""
+            known = [d for d in ("hm3dv1", "hm3dv2", "mp3d", "ovon") if d in cf]
+            if len(known) == 1 and known[0] != dataset:
+                print(
+                    f"WARNING: {os.path.basename(path)} was carved from {cf}, "
+                    f"which looks like '{known[0]}', but --dataset is "
+                    f"'{dataset}'. If that is wrong the run silently plays "
+                    "unrelated episodes.",
+                    file=sys.stderr,
+                )
+        if src and src != dataset:
+            sys.exit(
+                f"playlist/dataset mismatch: {os.path.basename(path)} was drawn "
+                f"from '{src}' but --dataset is '{dataset}'. Indices are positions "
+                f"in that split's episode iterator, so this would silently play "
+                f"unrelated episodes. Re-run with --dataset {src}."
+            )
     else:
         idx = []
         for line in text.splitlines():
@@ -622,7 +657,7 @@ def main():
     with habitat.config.read_write(cfg):
         cfg.habitat.environment.iterator_options.cycle = True
 
-    playlist = load_playlist(args.playlist) if args.playlist else [args.episode or 0]
+    playlist = load_playlist(args.playlist, args.dataset) if args.playlist else [args.episode or 0]
 
     # Mirrors the agent's videos/test_<dataset>_<split>/ layout so human and agent
     # runs sit side by side and analyze_failures.py can read either. Each playlist
