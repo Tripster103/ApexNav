@@ -45,3 +45,5 @@ already played. Both emit the same `selection.indices_0based` key, so
 they are: they sit alongside the upstream modules they extend
 (`failure_check.py`, `read_record.py`/`write_record.py`) and are imported by
 relative package path.
+
+Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.

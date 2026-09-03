@@ -42,6 +42,8 @@ Usage
   make_subset.py .../continue.txt --index-file episodes.txt
 
 Writes <dir-of-continue.txt>/<name>/{continue.txt,record.txt,metadata.json}.
+
+Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """
 
 import argparse
