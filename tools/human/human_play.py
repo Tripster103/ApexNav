@@ -91,11 +91,18 @@ os.environ.setdefault("HABITAT_SIM_LOG", "quiet")
 from flask import Flask, Response, jsonify, request
 from werkzeug.serving import WSGIRequestHandler
 
-# Longest a single POST /next (env.reset + oracle rollout) may take before the
-# HTTP handler socket is cut. Raised from 10s: episode transitions legitimately
-# run longer than that on a cold filesystem, and a cut mid-response desyncs the
-# browser from the server-side episode counter.
-REQUEST_TIMEOUT_S = 120
+# Socket timeout for one HTTP connection. This bounds only the recv/send
+# syscalls -- readline() on the request line, and the response write -- never the
+# sim work inside a handler, so a slow /next is unaffected by it.
+#
+# Kept SHORT on purpose. The server is serial (see app.run below), so a
+# connection that opens and never sends a request line blocks gameplay for
+# exactly this long. VS Code's port forwarder probes that way roughly every
+# 3 minutes; at 10s that cost ~6% of wall time, and a 120s value tried on
+# 2026-09-03 would have cost ~65%. Nothing legitimate sits idle mid-connection:
+# werkzeug leaves protocol_version at HTTP/1.0 when unthreaded, so there is no
+# keep-alive and every connection is accept -> read -> respond -> close.
+REQUEST_TIMEOUT_S = 3
 from hydra import compose, initialize_config_dir
 from PIL import Image
 
@@ -802,12 +809,10 @@ def main():
     # It only bounds recv/send syscalls, not the sim step inside /act, so slow
     # episodes are unaffected.
     #
-    # REQUEST_TIMEOUT_S is generous because a legit /next (reset + up-to-500-step
-    # oracle rollout) is the long pole and is deliberately uncapped so StepSPL
-    # stays exact. A wedged VS Code probe
-    # socket now stalls the thread that long in the worst case, which is rare and
-    # preferable to cutting real episode loads. No keep-alive (HTTP/1.0), so
-    # every connection is accept -> read -> respond -> close.
+    # See REQUEST_TIMEOUT_S: short, because this server is serial and an idle
+    # probe socket blocks gameplay for the whole timeout. The real fix is a
+    # threaded front-end marshalling sim calls to one worker thread that owns the
+    # EGL context; this is the cheap mitigation.
     WSGIRequestHandler.timeout = REQUEST_TIMEOUT_S
     app.run(host="127.0.0.1", port=args.port, threaded=False, debug=False)
 
