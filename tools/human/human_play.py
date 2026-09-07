@@ -149,6 +149,38 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
     candidate_positions = [
         vp.agent_state.position for goal in episode.goals for vp in goal.view_points
     ]
+
+    # OVON only -- mirrors habitat_evaluation.py:233, which in turn mirrors
+    # OVONDistanceToGoal.reset_metric (ovon/measurements/nav.py:45-59): the
+    # candidate set is extended with the view points of the episode's
+    # `children_object_categories`, so a `table` episode also succeeds on a
+    # `desk`. config/habitat_eval_ovon.yaml selects that measure, so the
+    # success/SPL this oracle normalises resolve against the EXTENDED set.
+    # Without this the human oracle t* would be measured against a stricter goal
+    # set than the metric it divides into -- deflating human StepSPL on the 149
+    # of 3000 val_seen episodes (5.0%) with a non-empty children list, and only
+    # on those, while agent StepSPL on the same episodes is unaffected.
+    #
+    # The getattr guards make this a no-op for hm3dv1/hm3dv2/mp3d: their episodes
+    # have no `children_object_categories` and their datasets no
+    # `goals_by_category`. Missing child keys are skipped exactly as OVON's
+    # measure skips them.
+    child_categories = getattr(episode, "children_object_categories", None) or []
+    goals_by_category = getattr(
+        getattr(env, "_dataset", None), "goals_by_category", None
+    )
+    if child_categories and goals_by_category is not None:
+        scene_key = episode.scene_id.split("/")[-1]
+        for child_category in child_categories:
+            child_goals = goals_by_category.get(f"{scene_key}_{child_category}")
+            if child_goals is None:
+                continue
+            candidate_positions.extend(
+                vp.agent_state.position
+                for goal in child_goals
+                for vp in goal.view_points
+            )
+
     if not candidate_positions:
         env.sim.set_agent_state(start_position, start_rotation)
         return max_episode_steps
@@ -668,6 +700,14 @@ def main():
     if args.dataset == "ovon":
         import ovon  # noqa: F401 -- registers OVON-v1, same as habitat_evaluation.py
 
+        # ovon/__init__.py's own `from ovon.measurements import ... nav` is
+        # commented out (2026-08-04) to keep the CLIP/training stack off the
+        # import path, so `import ovon` alone leaves OVONDistanceToGoal
+        # unregistered and Env.__init__ dies with "invalid distance_to_goal type
+        # OVONDistanceToGoal". config/habitat_eval_ovon.yaml:71 selects it by
+        # name, so import the module directly -- same as habitat_evaluation.py:853.
+        import ovon.measurements.nav  # noqa: F401
+
     with initialize_config_dir(version_base=None, config_dir=CONFIG_DIR):
         cfg = compose(config_name=f"habitat_eval_{args.dataset}")
 
@@ -676,6 +716,22 @@ def main():
     # dies in get_agent_config() with MissingMandatoryValue. Must run before the
     # panels edits and before habitat.Env().
     cfg = patch_config(cfg)
+
+    # Same as habitat_evaluation.py:376, for the same reason: OVON is
+    # open-vocabulary, but habitat-lab's default ObjectGoalSensor (pulled in by
+    # /habitat/task: objectnav) requires dataset.category_to_task_category_id,
+    # which OVONDatasetV1 does not implement -- Env.__init__ dies with
+    # "'OVONDatasetV1' object has no attribute 'category_to_task_category_id'".
+    # Nothing here reads that sensor either: the target name comes off the
+    # episode (self.target = self.episode.object_category), and the human sees
+    # only the RGB panel. So drop it rather than fake a category mapping.
+    if cfg.habitat.dataset.type == "OVON-v1":
+        from omegaconf import OmegaConf, open_dict
+        was_readonly = OmegaConf.is_readonly(cfg)
+        OmegaConf.set_readonly(cfg, False)
+        with open_dict(cfg):
+            cfg.habitat.task.lab_sensors.pop("objectgoal_sensor", None)
+        OmegaConf.set_readonly(cfg, was_readonly)
 
     # Let the iterator wrap, so a playlist can be played in any order rather than
     # forced ascending -- see load(). Done here rather than in the five
