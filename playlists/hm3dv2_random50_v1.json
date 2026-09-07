@@ -7,13 +7,12 @@
     "n_scenes_total": 36
   },
   "selection": {
-    "name": "random50_seed1_setA",
+    "name": "random50_v1",
     "n_selected": 50,
     "indexing": "0-based test_epi_num into the habitat episode iterator",
     "strategy": "stratified round-robin over scenes, dealt scene-wise into 3 disjoint sets, then max-spread play order (adaptive same-scene cooldown, random among eligible)",
     "n": 50,
     "seed": 1,
-    "sets": 3,
     "target": null,
     "scene": null,
     "scene_coverage": {
@@ -77,10 +76,6 @@
       400,
       763,
       965
-    ],
-    "disjoint_with": [
-      "hm3dv2_random50_seed1_setB.json",
-      "hm3dv2_random50_seed1_setC.json"
     ]
   },
   "scene_counts": {

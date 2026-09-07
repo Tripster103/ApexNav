@@ -20,7 +20,7 @@ which carries the full 9-bind NVIDIA/EGL set and the cache env vars:
 
     # or a whole playlist, played back to back:
     bash /scratch2/ml20/btripcon/FYP/jobs/run_human_play.sh --dataset hm3dv1 \\
-        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1_random50_seed0.json
+        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1_random50_v1.json
 
 Build a playlist with either of two tools, both of which emit the 0-based indices
 as selection.indices_0based:

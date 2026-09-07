@@ -7,7 +7,7 @@
     "n_scenes_total": 20
   },
   "selection": {
-    "name": "random50_seed0",
+    "name": "random50_v1",
     "n_selected": 50,
     "indexing": "0-based test_epi_num into the habitat episode iterator",
     "strategy": "stratified round-robin over scenes, then shuffled for play order",

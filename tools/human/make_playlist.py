@@ -54,7 +54,7 @@ Usage (inside the apexnav container; runs from any directory):
 
 Writes <repo>/playlists/<dataset>_<name>.json. Play it with:
     bash jobs/run_human_play.sh --dataset hm3dv1 \\
-        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1_random50_seed0.json
+        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1_random50_v1.json
 
 Note on datasets: OVON's val splits reuse HM3Dv2's 36 scenes exactly -- the
 seen/unseen axis is object *categories* (79 vs 49, zero overlap), not scenes. So
@@ -176,6 +176,77 @@ def stratified_sample(rows, n, rng):
         if not progressed:
             break  # every episode exhausted
     return picked
+
+
+def proportional_sample(rows, n, rng, full_scene_counts=None):
+    """Pick n episodes with per-scene slots proportional to each scene's SIZE.
+
+    stratified_sample() above allocates scenes EQUALLY (round-robin), which is
+    unbiased only when the scenes hold roughly equal numbers of episodes. That
+    holds for hm3dv1 (99-119 per scene), hm3dv2 (22-28) and mp3d (197-201), but
+    not for ovon val_seen, whose scenes run 12 to 143 -- a ~12x spread. Equal
+    allocation there over-weights the small scenes by an order of magnitude, so
+    the resulting success rate is not an unbiased estimate of the full split's.
+
+    This allocates by Hamilton (largest-remainder) apportionment on scene size,
+    so each scene's share of the sample matches its share of the split, and then
+    draws uniformly at random within each scene. That makes the playlist a
+    proper proportionally-stratified sample: unbiased for the split mean, with
+    lower variance than simple random sampling.
+
+    `full_scene_counts` is the scene histogram of the WHOLE split, used for the
+    apportionment even when `rows` has already had --exclude applied. Allocating
+    on the post-exclusion remainder instead would let an earlier playlist's
+    equal-allocation draw bias this one. Where a scene's allocation exceeds what
+    is still available, the excess is handed back and re-apportioned over the
+    scenes that still have room.
+
+    Note the deliberate omission: there is NO category-coverage pass. Forcing
+    rare categories in over-weights them (mp3d tv_monitor is 8 episodes in 2195,
+    so its honest expectation in 100 draws is 0.36) and biases the success rate
+    downward, which is exactly what proportional sampling is here to avoid.
+    Scene coverage is a side effect of proportional allocation, not a guarantee:
+    a scene too small to earn a slot is legitimately absent.
+    """
+    by_scene = defaultdict(list)
+    for r in rows:
+        by_scene[r["scene"]].append(r)
+    for v in by_scene.values():
+        rng.shuffle(v)
+
+    sizes = dict(full_scene_counts) if full_scene_counts else {
+        s: len(v) for s, v in by_scene.items()
+    }
+    sizes = {s: sizes.get(s, 0) for s in by_scene}          # only scenes we can draw from
+    cap = {s: len(v) for s, v in by_scene.items()}
+
+    alloc = {s: 0 for s in by_scene}
+    remaining, live = n, set(by_scene)
+    while remaining > 0 and live:
+        tot = sum(sizes[s] for s in live) or 1
+        quota = {s: sizes[s] * remaining / tot for s in live}
+        base = {s: min(int(quota[s]), cap[s] - alloc[s]) for s in live}
+        for s in base:
+            alloc[s] += base[s]
+        remaining -= sum(base.values())
+        # Largest remainder for the leftover seats, skipping exhausted scenes.
+        order = sorted(live, key=lambda s: (-(quota[s] - int(quota[s])), -sizes[s], s))
+        progressed = False
+        for s in order:
+            if remaining <= 0:
+                break
+            if alloc[s] < cap[s]:
+                alloc[s] += 1
+                remaining -= 1
+                progressed = True
+        live = {s for s in live if alloc[s] < cap[s]}
+        if not progressed and all(alloc[s] >= cap[s] for s in live):
+            break
+    picked = []
+    for s, k in alloc.items():
+        picked.extend(by_scene[s][:k])
+    rng.shuffle(picked)
+    return picked[:n]
 
 
 def spread_play_order(picked, rng, attempts=200):
@@ -330,6 +401,30 @@ def main():
         default=None,
         help="where to write the json (default: <repo>/playlists/)",
     )
+    ap.add_argument(
+        "--alloc",
+        choices=["coverage", "proportional"],
+        default="coverage",
+        help="how per-scene slots are allocated. 'coverage' (default) seeds every "
+        "scene AND category then fills round-robin -- equal per scene. "
+        "'proportional' apportions slots by scene size (Hamilton), giving an "
+        "unbiased estimate of the split mean; it does NOT force category or "
+        "scene coverage, so pass --allow-partial-coverage with it.",
+    )
+    ap.add_argument(
+        "--exclude",
+        nargs="+",
+        metavar="PLAYLIST",
+        help="playlist json(s) whose indices_0based must NOT appear in the draw; "
+        "use this to keep a new playlist disjoint from one already played",
+    )
+    ap.add_argument(
+        "--set-label",
+        choices=["suffix", "letter"],
+        default="suffix",
+        help="how --sets names its outputs: 'suffix' -> <name>_setA (default), "
+        "'letter' -> <name>A",
+    )
     ap.add_argument("--force", action="store_true", help="overwrite an existing file")
     ap.add_argument(
         "--dry-run", action="store_true", help="print the summary, write nothing"
@@ -342,6 +437,20 @@ def main():
     rows = scan(args.dataset)
     total = len(rows)
     total_scenes = len({r["scene"] for r in rows})
+    # Scene histogram of the whole split, captured BEFORE any filtering or
+    # exclusion -- proportional allocation must apportion on the real split
+    # shape, not on what a previous playlist happened to leave behind.
+    full_scene_counts = Counter(r["scene"] for r in rows)
+
+    excluded = set()
+    if args.exclude:
+        for f in args.exclude:
+            with open(f, encoding="utf-8") as fh:
+                excluded |= set(json.load(fh)["selection"]["indices_0based"])
+        before = len(rows)
+        rows = [r for r in rows if r["index"] not in excluded]
+        print(f"excluded: {len(excluded)} indices from {len(args.exclude)} playlist(s)"
+              f" -- {before} -> {len(rows)} episodes available")
 
     if args.target:
         rows = [r for r in rows if r["category"].lower() in args.target]
@@ -369,7 +478,12 @@ def main():
     rng = random.Random(args.seed)
     # Stratify over the whole pool first, then deal. Stratifying decides *which*
     # episodes; spread_play_order below decides the order they are played in.
-    pool = stratified_sample(rows, need, rng)
+    if args.alloc == "proportional":
+        pool = proportional_sample(rows, need, rng, full_scene_counts)
+    else:
+        pool = stratified_sample(rows, need, rng)
+    if len(pool) < need:
+        sys.exit(f"could only draw {len(pool)} of {need} episodes after exclusions")
     groups = (
         deal_disjoint_sets(pool, args.sets, rng) if args.sets > 1 else [pool]
     )
@@ -379,7 +493,8 @@ def main():
     labels = (
         [""]
         if args.sets == 1
-        else [f"_set{chr(ord('A') + i)}" for i in range(args.sets)]
+        else [("_set" if args.set_label == "suffix" else "")
+              + chr(ord("A") + i) for i in range(args.sets)]
     )
     paths = [
         os.path.join(out_dir, f"{args.dataset}_{base}{lab}.json") for lab in labels
@@ -418,7 +533,7 @@ def main():
         cat_counts = Counter(r["category"] for r in picked)
         covered = len(scene_counts)
 
-        tag = f"set{lab[-1]}" if lab else "playlist"
+        tag = f"set{lab[-1]}" if lab else "playlist"  # lab[-1] is the letter either way
         print(
             f"\n{tag}: {len(picked)} episodes | scenes {covered}/{n_scenes}"
             f" | per-scene {min(scene_counts.values())}-{max(scene_counts.values())}"
@@ -454,8 +569,14 @@ def main():
                 "name": f"{base}{lab}",
                 "n_selected": len(picked),
                 "indexing": "0-based test_epi_num into the habitat episode iterator",
+                "alloc": args.alloc,
+                "excluded_playlists": [os.path.basename(f) for f in (args.exclude or [])],
+                "n_excluded_indices": len(excluded),
                 "strategy": (
-                    "scene+category coverage-seeded, then round-robin over scenes"
+                    ("per-scene slots proportional to scene size (Hamilton), "
+                     "drawn uniformly within scene"
+                     if args.alloc == "proportional" else
+                     "scene+category coverage-seeded, then round-robin over scenes")
                     + (f", dealt scene- and category-balanced into {args.sets} disjoint sets"
                        if args.sets > 1 else "")
                     + ", then max-spread play order (adaptive same-scene cooldown,"
