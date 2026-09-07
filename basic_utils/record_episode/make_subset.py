@@ -14,6 +14,12 @@ record.txt logs *averages* instead, so it is the lossier of the two files
 the episode index). Everything here reads continue.txt only; the subset's
 record.txt is regenerated from it.
 
+The common case is --playlist: a human-play playlist (tools/human/make_playlist.py)
+names 50 episodes by index, the full benchmark run already played all of them, so
+ApexNav's numbers on exactly those 50 come out of continue.txt instead of a re-run.
+The subset is emitted in playlist order, so No.N here is the same episode as No.N
+in the human run.
+
 Precision: continue.txt cumulatives are pre-rounded (f"{spl_all:.2f}"), so a
 recovered per-episode value carries +/-0.01. Rounding errors telescope across a
 subset, leaving ~0.03-0.14pp of error on a subset mean -- two orders of
@@ -22,8 +28,14 @@ integers and come back exactly.
 
 Usage
 -----
+  # ApexNav's numbers on the episodes a human-play playlist names. The eval is
+  # named explicitly here; scripts/make_subset.sh defaults it to the baseline
+  # and looks the playlist up by stem:  bash make_subset.sh mp3d_random50_v1
+  make_subset.py --playlist playlists/mp3d_random50_v1.json \
+      ../results/apexnav/mp3d/baseline/continue.txt
+
   # first 100 episodes (0-based, inclusive ranges)
-  make_subset.py results/apexnav/baseline/hm3dv1/continue.txt --indices 0-99
+  make_subset.py ../results/apexnav/hm3dv1/baseline/continue.txt --indices 0-99
 
   # every chair episode
   make_subset.py .../continue.txt --target chair
@@ -41,7 +53,8 @@ Usage
   # indices from a file, one per line
   make_subset.py .../continue.txt --index-file episodes.txt
 
-Writes <dir-of-continue.txt>/<name>/{continue.txt,record.txt,metadata.json}.
+Writes <dir-of-continue.txt>/<name>/{continue.txt,record.txt,metadata.json};
+with --playlist, <name> defaults to the playlist's filename stem.
 
 Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """
@@ -56,6 +69,8 @@ import sys
 from datetime import datetime
 
 from prettytable import PrettyTable
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 BLOCK_RE = re.compile(r"Scene ID:")
 ROW_RE = re.compile(r"^\|\s*(Total [^|]*?)\s*\|\s*([-\d.eE+]+)\s*\|\s*$", re.M)
@@ -82,6 +97,11 @@ def parse_continue(path):
     starts = [m.start() for m in BLOCK_RE.finditer(text)]
     if not starts:
         sys.exit(f"no episode blocks found in {path}")
+    if "| Average " in text and "| Total " not in text:
+        sys.exit(
+            f"{path} is a record.txt (running averages). Differencing needs the "
+            "cumulative totals -- point this at the continue.txt beside it."
+        )
     starts.append(len(text))
 
     by_num, metric_names = {}, None
@@ -206,6 +226,77 @@ def render_file(blocks):
 
 
 # --------------------------------------------------------------------------
+# playlists
+# --------------------------------------------------------------------------
+def load_playlist(path):
+    """-> (indices in play order, {index: identity row}, dataset).
+
+    Accepts both make_playlist.py playlists and the metadata.json this script
+    writes; they share selection.indices_0based, and name the per-episode source
+    index `index` and `source_index_0based` respectively.
+    """
+    with open(path) as fh:
+        pl = json.load(fh)
+
+    idx = (pl.get("selection") or {}).get("indices_0based")
+    if not idx:
+        sys.exit(f"{path}: no selection.indices_0based -- not a playlist?")
+
+    rows = {}
+    for ep in pl.get("per_episode") or []:
+        i = ep.get("index", ep.get("source_index_0based"))
+        if i is not None and ep.get("episode_id") is not None:
+            rows[i] = ep
+
+    return idx, rows, (pl.get("source") or {}).get("dataset")
+
+
+def check_playlist(episodes, idx, rows, playlist_path, source):
+    """Abort unless the source run's episodes are the ones the playlist names.
+
+    Indices are positions in the episode iterator, not identities, so a playlist
+    pointed at the wrong run scores 50 unrelated episodes and looks fine doing
+    it (that bug, in its --dataset form, cost a collection run on 2026-09-03).
+    Scene ID + Episode ID are in both files, so just compare them.
+    """
+    n = len(episodes)
+    over = [i for i in idx if not 0 <= i < n]
+    if over:
+        sys.exit(
+            f"{os.path.basename(playlist_path)} names index {over[0]}, but "
+            f"{source} has {n} episodes (0..{n - 1}). Wrong run for this playlist."
+        )
+    if not rows:
+        print("! playlist has no per_episode block -- indices taken on trust")
+        return
+
+    bad = [
+        (i, rows[i], episodes[i])
+        for i in idx
+        if i in rows
+        and (
+            str(rows[i]["episode_id"]) != str(episodes[i]["episode_id"])
+            or (rows[i].get("scene_id") and rows[i]["scene_id"] != episodes[i]["scene_id"])
+        )
+    ]
+    if bad:
+        lines = [
+            f"  index {i}: playlist says {w.get('scene_id', '?')} ep {w['episode_id']}, "
+            f"run has {g['scene_id']} ep {g['episode_id']}"
+            for i, w, g in bad[:5]
+        ]
+        sys.exit(
+            f"{len(bad)}/{len(idx)} episodes differ between "
+            f"{os.path.basename(playlist_path)} and {source}:\n"
+            + "\n".join(lines)
+            + ("\n  ..." if len(bad) > 5 else "")
+            + "\nThis would score unrelated episodes. Wrong continue.txt for "
+            "this playlist, or the playlist was drawn from another dataset."
+        )
+    print(f"playlist: {len(rows)}/{len(idx)} episode ids verified against the run")
+
+
+# --------------------------------------------------------------------------
 # selection
 # --------------------------------------------------------------------------
 def parse_index_spec(spec, n_total):
@@ -238,7 +329,9 @@ def dedupe(seq):
 def select(episodes, args):
     n_total = len(episodes)
 
-    if args.indices:
+    if args.playlist:
+        idx = args.playlist_indices  # already order-checked in main()
+    elif args.indices:
         idx = parse_index_spec(args.indices, n_total)
     elif args.index_file:
         idx = []
@@ -299,7 +392,16 @@ def select(episodes, args):
 
 
 def default_name(args, idx):
+    # A playlist names the run; the human side already uses that stem as its
+    # folder (videos/human/test_<dataset>_<split>/<stem>/), so match it.
+    if args.playlist and not (args.target or args.result or args.scene
+                              or args.max_per_scene is not None
+                              or args.sample is not None or args.shuffle):
+        return os.path.splitext(os.path.basename(args.playlist))[0]
+
     tokens = []
+    if args.playlist:
+        tokens.append("playlist-" + os.path.splitext(os.path.basename(args.playlist))[0])
     if args.indices:
         tokens.append("idx" + args.indices.replace(" ", "").replace(",", "_"))
     if args.index_file:
@@ -331,7 +433,11 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__.split("Usage\n-----\n", 1)[1],
     )
-    p.add_argument("continue_file", help="path to the source continue.txt")
+    p.add_argument("continue_file", nargs="?",
+                   help="path to the source continue.txt -- required here; "
+                        "scripts/make_subset.sh defaults it to the baseline arm")
+    p.add_argument("--playlist", help="playlist json from make_playlist.py: take its "
+                                      "episodes, in its play order")
     p.add_argument("--indices", help="0-based indices/ranges, e.g. '0-99,150,200-249'")
     p.add_argument("--index-file", help="file of 0-based indices, one per line ('#' comments ok)")
     p.add_argument("--target", nargs="+", type=str.lower, help="keep only these target categories")
@@ -348,7 +454,23 @@ def main():
     p.add_argument("--list", action="store_true", help="list available targets/results and exit")
     args = p.parse_args()
 
+    args.playlist_indices = None
+    playlist_rows = {}
+    if args.playlist:
+        if args.indices or args.index_file:
+            sys.exit("--playlist already names the episodes; drop --indices/--index-file")
+        args.playlist_indices, playlist_rows, _ = load_playlist(args.playlist)
+    if not args.continue_file:
+        p.error(
+            "name the continue.txt to score against, or go through "
+            "scripts/make_subset.sh, which defaults to "
+            "results/apexnav/<dataset>/baseline/continue.txt"
+        )
+
     episodes, metric_names = parse_continue(args.continue_file)
+    if args.playlist:
+        check_playlist(episodes, args.playlist_indices, playlist_rows,
+                       args.playlist, args.continue_file)
 
     if args.list:
         for field in ("target", "result"):
@@ -421,7 +543,10 @@ def main():
         "selection": {
             "name": name,
             "n_selected": n,
-            "indexing": "0-based into the source run, ordered by No.",
+            "indexing": "0-based into the source run, ordered by No."
+            + ("; emitted in the playlist's play order, so No.N matches the "
+               "human run's No.N" if args.playlist else ""),
+            "playlist": os.path.abspath(args.playlist) if args.playlist else None,
             "indices": args.indices,
             "index_file": os.path.abspath(args.index_file) if args.index_file else None,
             "target": args.target,

@@ -15,7 +15,7 @@
        intrinsics that must match ITS depth_sensor block. The defaults below are the
        HM3D-ObjectNav LoCoBot body (640x480, hfov 79, camera y=0.88) that hm3dv1,
        hm3dv2 and mp3d are validated against. DO NOT edit them to suit a different
-       embodiment; pass overrides instead. jobs/run_apexnav_benchmark.sh derives all
+       embodiment; pass overrides instead. scripts/run_apexnav_benchmark.sh derives all
        five from the composed Hydra config via derive_camera_params.py, so they cannot
        drift from the per-dataset config/habitat_eval_*.yaml. Running OVON's Stretch
        body (360x640, hfov 42, camera y=1.31) against these LoCoBot defaults is what

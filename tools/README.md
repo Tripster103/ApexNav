@@ -22,7 +22,7 @@ workflow.
 | script | what it does |
 |---|---|
 | `make_playlist.py` | Sample episodes **from the dataset**. Stratified round-robin over scenes, then shuffled into play order. `--n` defaults to 50. Writes `<repo>/playlists/<dataset>_random<N>_seed<S>.json`. |
-| `human_play.py` | Play a playlist by hand in a browser. Writes `record.txt`/`continue.txt` in the same format the sweep writes, so results drop straight into `analyze_failures.py`. Needs a GPU node. Launch via `jobs/run_human_play.sh`, never by hand. |
+| `human_play.py` | Play a playlist by hand in a browser. Writes `record.txt`/`continue.txt` in the same format the sweep writes, so results drop straight into `analyze_failures.py`. Needs a GPU node. Launch via `scripts/run_human_play.sh`, never by hand. |
 | `find_episode_index.py` | Map `scene + episode_id` <-> `test_epi_num` (the 0-based iterator index). Its `build_iterator()` is what `make_playlist.py` imports, and it is the **only** correct way to compute these indices — `group_by_scene` defaults True, so iterator order is scene-clustered, not dataset file order. Also useful for `run_single_episode_test.sh --episode N`. |
 
 The dataset-side selector here is distinct from

@@ -53,7 +53,7 @@ Usage (inside the apexnav container; runs from any directory):
     python tools/human/make_playlist.py --dataset hm3dv2 --dry-run
 
 Writes <repo>/playlists/<dataset>_<name>.json. Play it with:
-    bash jobs/run_human_play.sh --dataset hm3dv1 \\
+    bash scripts/run_human_play.sh --dataset hm3dv1 \\
         --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1_random50_v1.json
 
 Note on datasets: OVON's val splits reuse HM3Dv2's 36 scenes exactly -- the
@@ -632,7 +632,7 @@ def main():
     for path in written:
         print(f"  {path}")
     print(
-        f"play it with:\n  bash /scratch2/ml20/btripcon/FYP/jobs/run_human_play.sh "
+        f"play it with:\n  bash /scratch2/ml20/btripcon/FYP/scripts/run_human_play.sh "
         f"--dataset {args.dataset} \\\n      --playlist {os.path.abspath(written[0])}"
     )
 

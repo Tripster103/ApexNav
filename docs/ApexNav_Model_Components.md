@@ -46,7 +46,7 @@ Notes:
 - HM3D scenes require Matterport license approval (API token); MP3D scenes require a separate Terms of Use application to the Matterport3D maintainers. Both are gating steps before any evaluation can run — see `ApexNav_M3_Setup.md` Step 1 for the full approval/download trail.
 - The episode zips (`objectnav_hm3d_v1`, `objectnav_hm3d_v2`, `objectnav_mp3d_v1`) are separate downloads from the scene data itself and carry no license requirement.
 - `habitat_evaluation.py --dataset {hm3dv1,hm3dv2,mp3d}` runs each dataset's full val split independently by default (no shared state or index dependency between datasets) — HM3Dv2 is the repo's own CLI default if `--dataset` is omitted.
-- Full-sweep benchmark runs (all episodes, one dataset per `sbatch` submission) are the current in-progress task — see `jobs/run_benchmark.sh`.
+- Full-sweep benchmark runs (all episodes, one dataset per `sbatch` submission) are the current in-progress task — see `scripts/run_apexnav_benchmark.sh`.
 
 ### Evaluation protocol & result variance (confirmed from source, 2026-07-14)
 

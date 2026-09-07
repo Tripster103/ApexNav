@@ -9,7 +9,7 @@ Paper baseline numbers to check against (Table I, SR/SPL):
 - HM3Dv2: 76.2 / 38.0
 - MP3D: 39.2 / 17.8
 
-Status: setup complete (steps 1-6 below). Full benchmark sbatch runs (step 7) are in progress — see `jobs/run_apexnav_benchmark.sh`.
+Status: setup complete (steps 1-6 below). Full benchmark sbatch runs (step 7) are in progress — see `scripts/run_apexnav_benchmark.sh`.
 
 ## Directory layout (current snapshot, confirmed 2026-07-14)
 
@@ -40,7 +40,7 @@ Status: setup complete (steps 1-6 below). Full benchmark sbatch runs (step 7) ar
 │   ├── datasets/objectnav/{hm3d,mp3d}/                 # episode zips, no license needed
 │   └── model_weights/{groundingdino_swint_ogc.pth,mobile_sam.pt,yolov7-e6e.pt}
 ├── habitat-lab/                                # habitat-lab v0.3.1 + habitat-baselines + habitat-hitl, pip -e installed
-├── jobs/                                       # sbatch scripts (run_apexnav_benchmark.sh)
+├── scripts/                                       # sbatch scripts (run_apexnav_benchmark.sh)
 ├── logs/                                       # {gdino,sam,yolov7,blip2itm}.log + slurm-*.out from batch jobs
 ├── results/                                    # final SR/SPL outputs — sync small stuff to local Papers/results.xlsx
 ├── apexnav-ros.sif, apexnav-ros.tar            # the container image (built off-cluster, see Step 4)
@@ -147,11 +147,11 @@ Status: setup complete (steps 1-6 below). Full benchmark sbatch runs (step 7) ar
    ```
    Confirmed the whole stack (Habitat, ROS exploration planner, all four detector servers) talks to itself correctly. Result varied slightly across repeated runs of the same episode — expected: no explicit seeding anywhere in `habitat_evaluation.py`, and the action loop is real-time ROS pub/sub, not lockstep — see `ApexNav_Model_Components.md`, "Evaluation protocol & result variance".
 
-7. **Full benchmark runs — in progress.** `jobs/run_apexnav_benchmark.sh` runs one dataset's entire val split per `sbatch` submission (unattended: brings up roscore + all four servers + the ROS exploration planner, waits for the servers, then runs the full sweep). Submit once per dataset, `--job-name` on the command line (not a static `#SBATCH` directive — see the script's header comment for why):
+7. **Full benchmark runs — in progress.** `scripts/run_apexnav_benchmark.sh` runs one dataset's entire val split per `sbatch` submission (unattended: brings up roscore + all four servers + the ROS exploration planner, waits for the servers, then runs the full sweep). Submit once per dataset, `--job-name` on the command line (not a static `#SBATCH` directive — see the script's header comment for why):
    ```bash
-   sbatch --job-name=an-hm3dv1 jobs/run_apexnav_benchmark.sh hm3dv1
-   sbatch --job-name=an-hm3dv2 jobs/run_apexnav_benchmark.sh hm3dv2
-   sbatch --job-name=an-mp3d   jobs/run_apexnav_benchmark.sh mp3d
+   sbatch --job-name=an-hm3dv1 scripts/run_apexnav_benchmark.sh hm3dv1
+   sbatch --job-name=an-hm3dv2 scripts/run_apexnav_benchmark.sh hm3dv2
+   sbatch --job-name=an-mp3d   scripts/run_apexnav_benchmark.sh mp3d
    ```
    `gpu` partition uses the `normal` QoS by default (confirmed via `mon_qos`): `MaxWall 7-00:00:00`, `MaxTRESPU gres/gpu=4` — all three can run concurrently. If a job hits the wall before finishing, resubmitting the same command resumes from `continue.txt` rather than restarting the dataset.
 
