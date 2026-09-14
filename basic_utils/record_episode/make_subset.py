@@ -32,10 +32,10 @@ Usage
   # named explicitly here; scripts/make_subset.sh defaults it to the baseline
   # and looks the playlist up by stem:  bash make_subset.sh mp3d_random50_v1
   make_subset.py --playlist playlists/mp3d_random50_v1.json \
-      ../results/apexnav/mp3d/baseline/continue.txt
+      ../results/mp3d/apexnav/baseline/continue.txt
 
   # first 100 episodes (0-based, inclusive ranges)
-  make_subset.py ../results/apexnav/hm3dv1/baseline/continue.txt --indices 0-99
+  make_subset.py ../results/hm3dv1/apexnav/baseline/continue.txt --indices 0-99
 
   # every chair episode
   make_subset.py .../continue.txt --target chair
@@ -464,7 +464,7 @@ def main():
         p.error(
             "name the continue.txt to score against, or go through "
             "scripts/make_subset.sh, which defaults to "
-            "results/apexnav/<dataset>/baseline/continue.txt"
+            "results/<dataset>/apexnav/baseline/continue.txt"
         )
 
     episodes, metric_names = parse_continue(args.continue_file)
