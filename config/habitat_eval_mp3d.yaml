@@ -49,6 +49,19 @@ detector:
     confidence_threshold_dino: 0.40
     text_threshold: 0.25
 
+  # Which open-vocabulary detector runs. 'groundingDINO' (default, the shipped
+  # baseline) or 'owlv2'. Flip this to switch arms -- no source edit.
+  backend: groundingDINO
+
+  owlv2:
+    # NOT interchangeable with confidence_threshold_dino. OWLv2's median
+    # detection scores 0.081 against GroundingDINO's 0.256; 0.25 is the matched
+    # operating point that equalises detection volume with GDINO's 0.40.
+    # Sweep 0.15 / 0.20 / 0.25 / 0.35. See analysis/detector/FINDINGS.md.
+    confidence_threshold_owlv2: 0.25
+    # No text_threshold: it gates GroundingDINO's phrase-grounding step, which
+    # OWLv2 does not have. The key would be dead rather than transferable.
+
 llm:
   llm_answer_path: llm/answers/llm_answer_mp3d.txt
   llm_response_path: llm/answers/llm_response_list.txt

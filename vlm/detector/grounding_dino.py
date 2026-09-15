@@ -63,7 +63,12 @@ class GroundingDINO:
             caption_to_use = self.caption
         else:
             caption_to_use = caption
-        print("GroundingDINO is detecting. Caption:", caption_to_use)
+        # flush=True and a result line, mirroring vlm/detector/owlv2.py exactly.
+        # Without these the two arms are not comparable from logs: stdout is
+        # block-buffered to a file and the server is SIGTERMed at run end, so
+        # unflushed lines are lost. Added 2026-09-15 to measure whether the
+        # target-vs-similar label competition differs between the detectors.
+        print("GroundingDINO is detecting. Caption:", caption_to_use, flush=True)
         with torch.inference_mode():
             boxes, logits, phrases = predict(
                 model=self.model,
@@ -73,6 +78,12 @@ class GroundingDINO:
                 text_threshold=text_threshold,
             )
         detections = ObjectDetections(boxes, logits, phrases, image_source=image)
+        print(
+            f"GroundingDINO found {len(phrases)} detection(s)"
+            + (": " + ", ".join(f"{p}={l:.3f}" for p, l in zip(phrases, logits.tolist()))
+               if len(phrases) else ""),
+            flush=True,
+        )
 
         # Remove detections whose class names do not exactly match the provided classes
         # classes = caption_to_use[: -len(" .")].split(" . ")

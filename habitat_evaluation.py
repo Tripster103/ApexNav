@@ -90,7 +90,7 @@ from llm.answer_reader.answer_reader import read_answer
 from params import HABITAT_STATE, ROS_STATE, ACTION, RESULT_TYPES
 from vlm.Labels import MP3D_ID_TO_NAME
 from vlm.utils.get_itm_message import get_itm_message_cosine
-from vlm.utils.get_object_utils import get_object
+from vlm.utils.get_object_utils import get_object, llm_answer_path_for
 
 
 def publish_int32(publisher, data):
@@ -393,7 +393,9 @@ def main(cfg: DictConfig) -> None:
 
     llm_cfg = cfg.llm
     llm_client = llm_cfg.llm_client
-    llm_answer_path = llm_cfg.llm_answer_path
+    # c_th lives on the active detector's score scale, so the llm_answer file has
+    # to follow detector.backend. See llm_answer_path_for().
+    llm_answer_path = llm_answer_path_for(llm_cfg.llm_answer_path, detector_cfg)
     llm_response_path = llm_cfg.llm_response_path
 
     # Single test parameters
@@ -735,6 +737,18 @@ def main(cfg: DictConfig) -> None:
             # of the sweep's success/failure folders, which
             # count_files_in_directory() tallies into the /habitat/record topic.
             img2video_output_path = os.path.join(video_output_path, "single")
+
+            # ...and within that, one folder per RUN. The filename is only
+            # scene_episodeid, so re-running an episode overwrote the previous
+            # video outright -- on 2026-09-15 a GroundingDINO run destroyed the
+            # video of the successful OWLv2 run of the same episode, which was
+            # the one worth keeping. The launcher exports APEXNAV_RUN_ID=$$, the
+            # same PID it names its log directory after, so a video and its logs
+            # share a name. Absent (e.g. habitat_evaluation.py run by hand), the
+            # old flat layout is kept.
+            run_id = os.environ.get("APEXNAV_RUN_ID", "")
+            if run_id:
+                img2video_output_path = os.path.join(img2video_output_path, run_id)
 
         if need_video:
             images_to_video(

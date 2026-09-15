@@ -23,6 +23,13 @@
        NOTE: no double hyphen anywhere in this comment, it is illegal in XML and
        roslaunch's expat parser rejects the whole file (see commit 2e0d4bf). -->
   <arg name="habitat_config" default="habitat_eval_hm3dv2"/>
+  <!-- Which open vocabulary detector the Python side is actually running. Nothing in
+       the C++ reads this; it exists so `rosparam get /detector/backend` and the
+       roslaunch SUMMARY tell the truth. The rosparam load below pulls the YAML file
+       verbatim, so without this override the dump shows the file default no matter
+       which backend was selected by the Hydra override, which reads as a bug and
+       cost real debugging time on 2026-09-15. -->
+  <arg name="detector_backend" default=""/>
   <arg name="cx" default="320"/>
   <arg name="cy" default="240"/>
   <arg name="fx" default="388.1910413097385"/>
@@ -40,6 +47,8 @@
 
   <group unless="$(arg is_real_world)">
     <rosparam file="$(find exploration_manager)/../../../config/$(arg habitat_config).yaml" command="load" />
+    <!-- must come AFTER the rosparam load, or the file value wins -->
+    <param name="detector/backend" value="$(arg detector_backend)" if="$(eval arg('detector_backend') != '')"/>
   </group>
 
   <!-- main algorithm params -->

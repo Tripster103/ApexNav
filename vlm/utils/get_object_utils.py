@@ -6,13 +6,104 @@ from vlm.coco_classes import COCO_CLASSES
 from vlm.detector.yolov7 import YOLOv7Client
 from vlm.segmentor.sam import MobileSAMClient
 from vlm.detector.grounding_dino import GroundingDINOClient
+from vlm.detector.owlv2 import OWLv2Client
 from vlm.itm.blip2itm import BLIP2ITMClient
 from vlm.utils.get_itm_message import get_itm_message
 
 yolov7_detector = YOLOv7Client(port=int(os.environ.get("YOLOV7_PORT", 12184)))
 blip2_itm = BLIP2ITMClient(port=int(os.environ.get("BLIP2_PORT", 12182)))
 sam_segmentor = MobileSAMClient(port=int(os.environ.get("SAM_PORT", 12183)))
+# Open-vocabulary detector clients. Both are just URL holders -- constructing one
+# does not touch a model or a GPU -- so building both up front costs nothing and
+# keeps the backend choice a pure lookup at call time.
 dino_detector = GroundingDINOClient(port=int(os.environ.get("GDINO_PORT", 12181)))
+owlv2_detector = OWLv2Client(port=int(os.environ.get("OWLV2_PORT", 12185)))
+
+DEFAULT_DETECTOR_BACKEND = "groundingDINO"
+
+
+def detector_backend(cfg):
+    """Which open-vocabulary detector this run uses.
+
+    Defaults to groundingDINO when `detector.backend` is absent, so configs
+    written before the OWLv2 ablation keep working untouched.
+    """
+    backend = getattr(cfg, "backend", DEFAULT_DETECTOR_BACKEND)
+    if backend not in ("groundingDINO", "owlv2"):
+        raise ValueError(
+            f"detector.backend must be 'groundingDINO' or 'owlv2', got {backend!r}"
+        )
+    return backend
+
+
+def detector_threshold(cfg):
+    """The configured score gate, on the ACTIVE backend's scale.
+
+    The two are not interchangeable: OWLv2's median detection scores 0.081
+    against GroundingDINO's 0.256, so GroundingDINO's shipped 0.40 sits at
+    roughly OWLv2's 99th percentile. Reading the wrong key measures
+    "tuned vs untuned" rather than one detector against the other.
+    See analysis/detector/FINDINGS.md.
+    """
+    if detector_backend(cfg) == "owlv2":
+        return cfg.owlv2.confidence_threshold_owlv2
+    return cfg.groundingDINO.confidence_threshold_dino
+
+
+def llm_answer_path_for(path, cfg):
+    """The llm_answer file matching the ACTIVE detector, by convention
+    `<stem>_owlv2<ext>` for OWLv2.
+
+    Why this has to switch with the backend: each llm_answer line ends with the
+    paper's per-category `c_th`, the gate `isConfidenceObject` tests the fused
+    confidence against. That fused value is a convex combination of raw detector
+    scores (paper Eq. 2), so it never leaves the detector's own scale -- and
+    neither does c_th. GroundingDINO's c_th runs up to 0.65 while OWLv2's whole
+    score distribution tops out near 0.43, so reusing the GroundingDINO file
+    would leave 161 of ovon's 177 categories with a gate they can essentially
+    never clear. That is the "tuned vs untuned" comparison the calibration in
+    analysis/detector/ exists to prevent.
+
+    Raises rather than falling back, because a silent fallback is precisely the
+    failure this guards against. hm3dv1/hm3dv2 have no variant and do not need
+    one: all six HM3D-ObjectNav goals are COCO classes, so slot 0 is fed by
+    YOLOv7 and the swap does not touch the target path there. If you hit this
+    error on hm3d, the fix is to use ovon or mp3d, not to generate a file.
+    """
+    if detector_backend(cfg) != "owlv2":
+        return path
+    stem, ext = os.path.splitext(path)
+    if stem.endswith("_owlv2"):
+        return path  # already named explicitly by an override
+    owlv2_path = f"{stem}_owlv2{ext}"
+    if not os.path.exists(owlv2_path):
+        raise FileNotFoundError(
+            f"detector.backend=owlv2 needs OWLv2-scale c_th values, but "
+            f"{owlv2_path} does not exist. Generate it with "
+            f"analysis/detector/rescale_cth.py, or the run would apply "
+            f"GroundingDINO-scale thresholds to OWLv2 scores."
+        )
+    return owlv2_path
+
+
+def detect(cfg, img, caption):
+    """Run the configured detector. The ONLY place the backend is branched on.
+
+    Both clients return ObjectDetections with normalized xyxy boxes and exact
+    label strings in `.phrases`, so every consumer below is backend-agnostic.
+    """
+    if detector_backend(cfg) == "owlv2":
+        # text_threshold has no OWLv2 analogue -- it gates GroundingDINO's
+        # phrase-grounding step, which OWLv2 does not have -- so it is not passed.
+        return owlv2_detector.predict(
+            img, caption=caption, box_threshold=cfg.owlv2.confidence_threshold_owlv2
+        )
+    return dino_detector.predict(
+        img,
+        caption=caption,
+        box_threshold=cfg.groundingDINO.confidence_threshold_dino,
+        text_threshold=cfg.groundingDINO.text_threshold,
+    )
 
 
 def get_segmentation(segmented_img, idx, detections, img, label, score, color):
@@ -111,8 +202,7 @@ def get_object(right_label, img, cfg, similar_answer):
 
     if dino_label:
         caption = ' '.join(f'{item}.  ' for item in dino_label)
-        detections = dino_detector.predict(img, caption=caption, 
-                                        box_threshold=cfg.groundingDINO.confidence_threshold_dino, text_threshold=cfg.groundingDINO.text_threshold)
+        detections = detect(cfg, img, caption)
         for idx in range(len(detections.logits)):
             label_detected = detections.phrases[idx]
             score = detections.logits[idx].item()
@@ -160,12 +250,11 @@ def get_object_with_itm(label, img, cfg):
                 itm_score_list.append(itm_score)
 
     else:
-        detections = dino_detector.predict(img, caption=label, 
-                                           box_threshold=cfg.groundingDINO.confidence_threshold_dino, text_threshold=cfg.groundingDINO.text_threshold)
+        detections = detect(cfg, img, label)
         for idx in range(len(detections.logits)):
             label_detected = detections.phrases[idx]
             score = detections.logits[idx].item()
-            if score > cfg.groundingDINO.confidence_threshold_dino:
+            if score > detector_threshold(cfg):
                 segmented_img, object_mask = get_segmentation(
                     segmented_img, idx, detections, img, label_detected, score, color=(255, 0, 0)
                 )
