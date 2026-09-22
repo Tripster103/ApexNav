@@ -413,7 +413,7 @@ class HumanSession:
         self.started_at = time.time()
         return self.state()
 
-    def frame_png_b64(self):
+    def frame_b64(self):
         info = self.env.get_metrics()
         if self.panels == "all":
             img = observations_to_image(self.obs, info)
@@ -422,7 +422,35 @@ class HumanSession:
         else:
             img = self.obs["rgb"]
         buf = _io.BytesIO()
-        Image.fromarray(np.asarray(img, dtype=np.uint8)).save(buf, format="PNG")
+        # Lossless WebP, not PNG and not JPEG. Two constraints pull against each
+        # other here and this is the only format that satisfies both.
+        #
+        # 1. FIDELITY. The ObjectNav observation is the simulator's raw RGB
+        #    render, so that is what the human must see -- bit for bit. Do NOT be
+        #    tempted to match ApexNav's own q90 JPEG here. That q90
+        #    (vlm/server_wrapper.py:55 image_to_str, inherited from VLFM) is an
+        #    artifact of ApexNav shipping frames over HTTP to its VLM servers,
+        #    not part of the task: a method that runs its models in-process has
+        #    no such hop and no JPEG at all. Matching it would tune this baseline
+        #    to one method's plumbing and mismatch it against every other.
+        # 2. LATENCY. This frame goes down an SSH tunnel on every keypress, and
+        #    PNG was costing 28 ms of encode on a serial server -- it blocked the
+        #    next input, which is what made the tool feel laggy.
+        #
+        # Measured 2026-09-22, real ovon frame, 360x640 (the sensor is portrait):
+        #   PNG               107 KB, 28.1 ms, MAE vs raw 0.000
+        #   WebP lossless m=0  80 KB, 14.0 ms, MAE vs raw 0.000   <- this
+        #   JPEG q95 4:4:4     68 KB,  1.6 ms, MAE vs raw 0.572
+        #   JPEG q90           40 KB,  1.0 ms, MAE vs raw 1.400
+        # method=0 is the fast end of WebP's effort dial: ~2x the encode speed of
+        # the default for ~15% more bytes, which is the right trade on a link
+        # this short. Still bit-exact -- verified with np.array_equal on the
+        # decoded frame.
+        #
+        # Nothing scored reads this image -- it is display only, and the metrics
+        # come off env.get_metrics() against the sim state.
+        rgb = np.asarray(img, dtype=np.uint8)[..., :3]  # drop alpha if present
+        Image.fromarray(rgb).save(buf, format="WEBP", lossless=True, method=0)
         return base64.b64encode(buf.getvalue()).decode("ascii")
 
     def state(self):
@@ -431,7 +459,7 @@ class HumanSession:
                     "n_playlist": len(self.playlist)}
         info = self.env.get_metrics()
         return {
-            "frame": self.frame_png_b64(),
+            "frame": self.frame_b64(),
             "target": self.target,
             "steps": self.steps,
             "max_steps": self.max_steps,
@@ -616,7 +644,7 @@ function paint(s){
       'you can close this tab.</p>';
     return;
   }
-  document.getElementById('view').src='data:image/png;base64,'+s.frame;
+  document.getElementById('view').src='data:image/webp;base64,'+s.frame;
   document.getElementById('target').textContent=s.target;
   document.getElementById('steps').textContent=s.steps+' / '+s.max_steps;
   document.getElementById('scene').textContent=s.scene;
