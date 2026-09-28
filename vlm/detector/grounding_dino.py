@@ -40,6 +40,7 @@ class GroundingDINO:
         caption: Optional[str] = None,
         box_threshold: Optional[float] = 0.35,
         text_threshold: Optional[float] = 0.25,
+        remove_combined: Optional[bool] = False,
     ) -> ObjectDetections:
         """
         This function makes predictions on an input image tensor or numpy array using a
@@ -49,6 +50,37 @@ class GroundingDINO:
             image (np.ndarray): An image in the form of a numpy array.
             caption (Optional[str]): A string containing the possible classes
                 separated by periods. If not provided, the default classes will be used.
+            remove_combined (Optional[bool]): how the returned LABEL is decoded
+                from the model's per-token scores. False is upstream's default
+                and ApexNav's shipped behaviour; True is the ablation arm.
+
+                The model never returns text. It returns pred_logits of shape
+                (n_boxes, 256 token positions) -- a score per box per CAPTION
+                TOKEN. The label string is manufactured afterwards by
+                get_phrases_from_posmap (util/utils.py:599).
+
+                  False: take EVERY token above text_threshold, anywhere in the
+                         caption, and decode them together (inference.py:90-95).
+                         Our captions are category lists, so tokens from several
+                         different categories merge into one string. Real output
+                         for target 'sink cabinet':
+                         'cabinet cabinet cabinet kitchen cabinet' -- which is
+                         not any category name, so get_object()'s exact-match
+                         filter discards it. 27.4% of detections lost this way.
+
+                  True:  find the box's ARGMAX token, use the separator ids
+                         101/1012/102 ([CLS] / '.' / [SEP]) to bound decoding to
+                         the ONE caption segment containing it (inference.py:81-89).
+                         One segment = one category name.
+
+                The model itself already separates the categories -- the paper's
+                "sub-sentence level" text representation uses block-diagonal
+                attention masks explicitly to block attention between unrelated
+                category names (arXiv:2303.05499 Sec. 3.1). It is only the
+                DECODER that ignores those boundaries. False is the right default
+                for referring expressions ("the man in the red shirt"), where the
+                answer really is a multi-word span; it is the wrong one for a
+                category list. Inherited from VLFM, which does the same.
 
         Returns:
             ObjectDetections: An instance of the ObjectDetections class containing the
@@ -68,7 +100,8 @@ class GroundingDINO:
         # block-buffered to a file and the server is SIGTERMed at run end, so
         # unflushed lines are lost. Added 2026-09-15 to measure whether the
         # target-vs-similar label competition differs between the detectors.
-        print("GroundingDINO is detecting. Caption:", caption_to_use, flush=True)
+        print("GroundingDINO is detecting. Caption:", caption_to_use,
+              f"| remove_combined={remove_combined}", flush=True)
         with torch.inference_mode():
             boxes, logits, phrases = predict(
                 model=self.model,
@@ -76,6 +109,7 @@ class GroundingDINO:
                 caption=caption_to_use,
                 box_threshold=box_threshold,
                 text_threshold=text_threshold,
+                remove_combined=remove_combined,
             )
         detections = ObjectDetections(boxes, logits, phrases, image_source=image)
         print(
@@ -102,6 +136,7 @@ class GroundingDINOClient:
         caption: Optional[str] = "",
         box_threshold: Optional[float] = 0.35,
         text_threshold: Optional[float] = 0.25,
+        remove_combined: Optional[bool] = False,
     ) -> ObjectDetections:
         response = send_request(
             self.url,
@@ -109,6 +144,7 @@ class GroundingDINOClient:
             caption=caption,
             box_threshold=box_threshold,
             text_threshold=text_threshold,
+            remove_combined=remove_combined,
         )
         detections = ObjectDetections.from_json(response, image_source=image_numpy)
         return detections
@@ -131,6 +167,10 @@ if __name__ == "__main__":
                 caption=payload["caption"],
                 box_threshold=payload["box_threshold"],
                 text_threshold=payload["text_threshold"],
+                # .get, not [...]: a server started before this key existed must
+                # not 500 on an old client, and vice versa. Absent == shipped
+                # behaviour, which is the safe default.
+                remove_combined=payload.get("remove_combined", False),
             ).to_json()
 
     gdino = GroundingDINOServer()

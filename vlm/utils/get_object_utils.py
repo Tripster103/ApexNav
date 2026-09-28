@@ -1,4 +1,5 @@
 import os
+from collections import Counter
 
 import cv2
 import numpy as np
@@ -36,14 +37,35 @@ def detector_backend(cfg):
     return backend
 
 
+def remove_combined_mode(cfg):
+    """Whether GroundingDINO's label decoder respects caption segment boundaries.
+
+    False is ApexNav's shipped behaviour and stays the default, so configs
+    written before this ablation are unaffected. See GroundingDINO.predict()'s
+    docstring for what the flag actually changes -- in short, False decodes every
+    caption token above text_threshold into one string, merging several category
+    names together, while True bounds the decode to the segment containing the
+    box's argmax token.
+    """
+    mode = getattr(cfg.groundingDINO, "remove_combined", False)
+    if not isinstance(mode, bool):
+        raise ValueError(
+            f"detector.groundingDINO.remove_combined must be a bool, got {mode!r}"
+        )
+    return mode
+
+
 def detector_threshold(cfg):
     """The configured score gate, on the ACTIVE backend's scale.
 
-    The two are not interchangeable: OWLv2's median detection scores 0.081
-    against GroundingDINO's 0.256, so GroundingDINO's shipped 0.40 sits at
-    roughly OWLv2's 99th percentile. Reading the wrong key measures
-    "tuned vs untuned" rather than one detector against the other.
-    See analysis/detector/FINDINGS.md.
+    The two are not interchangeable -- the detectors do not score on a common
+    scale, so reading the wrong key measures "tuned vs untuned" rather than one
+    detector against the other.
+
+    The often-quoted "0.081 vs 0.256, so 0.40 is OWLv2's p99" figures were
+    measured on frames where the target was mostly ABSENT and describe
+    false-alarm scores only; on target-present frames OWLv2 reaches 0.814.
+    See analysis/detector/FINDINGS.md's 2026-09-28 banner.
     """
     if detector_backend(cfg) == "owlv2":
         return cfg.owlv2.confidence_threshold_owlv2
@@ -103,7 +125,160 @@ def detect(cfg, img, caption):
         caption=caption,
         box_threshold=cfg.groundingDINO.confidence_threshold_dino,
         text_threshold=cfg.groundingDINO.text_threshold,
+        remove_combined=remove_combined_mode(cfg),
     )
+
+
+DEFAULT_LABEL_MATCH = "exact"
+
+
+def label_match_mode(cfg):
+    """'exact' (the shipped behaviour) or 'fuzzy'. Defaults to exact, so configs
+    written before this ablation keep working untouched."""
+    mode = getattr(cfg.groundingDINO, "label_match", DEFAULT_LABEL_MATCH)
+    if mode not in ("exact", "fuzzy"):
+        raise ValueError(
+            f"detector.groundingDINO.label_match must be 'exact' or 'fuzzy', got {mode!r}"
+        )
+    return mode
+
+
+def load_label_vocabulary(llm_answer_path):
+    """Every category name the dataset knows about -- the keys of the llm_answer
+    file. Used as DISTRACTORS by label_match(); see there for why.
+
+    Returns [] rather than raising if the file is missing, because the two
+    non-sweep entry points (habitat_manual_control.py, real_world_test) may run
+    without one and must keep working.
+    """
+    vocab = []
+    try:
+        with open(llm_answer_path) as fh:
+            for line in fh:
+                if line.strip().startswith("#") or ":" not in line:
+                    continue
+                vocab.append(line.split(":", 1)[0].strip())
+    except OSError:
+        return []
+    # Pipe-separated goals ("table | dining table | ...") are several names.
+    out = []
+    for name in vocab:
+        out.extend(n.strip() for n in name.split("|"))
+    return out
+
+
+def label_match(phrase, candidates, mode=DEFAULT_LABEL_MATCH, distractors=()):
+    """Which of `candidates` a detector's returned `phrase` should count as.
+
+    Returns the matched candidate string, or None. `candidates` MUST be ordered
+    with the goal's own labels first (i.e. right_label_list + similar), because
+    that order is the tie-break -- see below.
+
+    `distractors` are OTHER category names the dataset knows about, which compete
+    for the match but can never win it: if one of them matches MORE specifically
+    than any candidate, the phrase belongs to something that is not in play here
+    and None is returned. Without this the rule is asymmetric in a way that
+    manufactures false positives -- see "THE DISTRACTOR GUARD" below.
+
+    WHY THIS EXISTS
+    ---------------
+    The two detectors do not return the same KIND of thing, and ApexNav's
+    original check assumed they did.
+
+    OWLv2 is handed a LIST of queries and returns, per box, an INDEX into it. Its
+    label is therefore always one of the exact strings we asked for, and an
+    exact-string filter over it is a no-op (805/805 survived on ovon ep 61).
+
+    GroundingDINO is handed ONE concatenated caption
+    ('sink cabinet.  cabinet.  bath cabinet.  kitchen cabinet.  drawer.  ') and
+    performs PHRASE GROUNDING: per box it reports which caption TOKENS fired,
+    glued back together. That is a readout of the caption, not a category name,
+    so it routinely returns strings that are in no candidate list at all. Real
+    output from ep 61, target 'sink cabinet', 117 detections:
+
+         61  kitchen cabinet
+         21  cabinet cabinet cabinet kitchen cabinet
+         16  cabinet kitchen cabinet
+          4  sink kitchen cabinet
+          2  sink cabinet cabinet cabinet kitchen cabinet
+
+    Under exact matching NONE of those counted as the target -- 0 of 117 -- even
+    though several plainly contain it. Measured at 27% of detections lost across
+    captions, 48% on this one.
+
+    So the exact filter does not merely favour OWLv2, it conflates two different
+    things: how well a detector SEES, and whether its output format happens to
+    fit ApexNav's plumbing. 'fuzzy' exists to separate them, as a third arm --
+    NOT as a fix to the baseline. 'exact' must stay byte-identical, or the
+    baseline moves under us and every banked run becomes incomparable.
+
+    THE RULE: token-set containment, most specific wins.
+      * lowercase token multisets, so repeated tokens are not free
+      * a candidate matches when its tokens are contained in the phrase's
+      * among matches, the one with the MOST tokens wins
+
+    "Most specific wins" is load-bearing. 'cabinet kitchen cabinet' contains
+    'cabinet' but NOT 'sink cabinet', so it is a similar. But
+    'sink cabinet cabinet cabinet kitchen cabinet' contains both, and assigning
+    it to the generic 'cabinet' (a similar, slot != 0) rather than to the target
+    would defeat the entire point of the arm.
+
+    Ties on token count are broken by ORDER IN `candidates`, which is why the
+    goal's own labels must come first: 'sink kitchen cabinet' contains both
+    'sink cabinet' and 'kitchen cabinet' at two tokens each, and the target has
+    to win. Without that the arm's headline case is decided by dict ordering.
+
+    THE DISTRACTOR GUARD
+    --------------------
+    Containment is ASYMMETRIC, and OVON's vocabulary is full of compound names
+    that share a head noun. val_seen alone has five separate cabinet categories
+    -- `cabinet`, `bathroom cabinet`, `sink cabinet`, `display cabinet`,
+    `kitchen lower cabinet` -- each with its own goal instances.
+
+      target `bathroom cabinet`, phrase 'cabinet'          -> no match. SAFE:
+          'bathroom' is missing, so containment fails.
+      target `cabinet`, phrase 'bathroom cabinet'          -> MATCHES, and that
+          is wrong: a bathroom cabinet is a DIFFERENT annotated object, so the
+          agent would drive to the wrong thing and fail the episode.
+
+    So generic targets absorb their specific siblings. Measured on val_seen:
+    17 targets have a more-specific sibling and 9 mis-awarded it. The other 8
+    were safe only because the LLM happened to list the sibling as a similar --
+    luck, not design.
+
+    Passing the dataset's category vocabulary as `distractors` makes that a
+    guarantee: 'bathroom cabinet' matches the distractor at two tokens, beating
+    the candidate `cabinet` at one, so the detection is dropped rather than
+    credited to the target. Distractors are checked AFTER candidates with a
+    strict >, so an exact tie always goes to the candidate.
+
+    THE RISK, WHICH IS REAL: relaxing this raises false positives, and
+    C: False Positive is already 33 of 104 agent failures (32%). A looser match
+    can promote EXPLORE to SEARCH_OBJECT on the wrong object and burn the
+    500-step budget. This arm may well score WORSE. That is a result, not a
+    failure, and it gets reported either way.
+    """
+    if mode == "exact":
+        # Identity. Kept inside this function rather than branched at the call
+        # site so both arms go through exactly one code path.
+        return phrase if phrase in candidates else None
+
+    phrase_tokens = Counter(phrase.lower().split())
+    best, best_n, best_wins = None, 0, False
+    candidate_set = set(candidates)
+    for is_candidate, pool in ((True, candidates), (False, distractors)):
+        for name in pool:
+            # A distractor that is already a candidate must not block it.
+            if not is_candidate and name in candidate_set:
+                continue
+            tokens = Counter(name.lower().split())
+            if not tokens or tokens - phrase_tokens:   # not contained
+                continue
+            n = sum(tokens.values())
+            if n > best_n:                   # strict >, so ties keep the earlier
+                best, best_n = name, n       # entry -- candidates before
+                best_wins = is_candidate     # distractors, goal before similars
+    return best if best_wins else None
 
 
 def get_segmentation(segmented_img, idx, detections, img, label, score, color):
@@ -156,7 +331,7 @@ def get_segmentation(segmented_img, idx, detections, img, label, score, color):
 
     return segmented_img, object_mask
 
-def get_object(right_label, img, cfg, similar_answer):
+def get_object(right_label, img, cfg, similar_answer, distractors=()):
     score_list = []
     object_masks_list = []
     segmented_img = img.copy()
@@ -203,9 +378,20 @@ def get_object(right_label, img, cfg, similar_answer):
     if dino_label:
         caption = ' '.join(f'{item}.  ' for item in dino_label)
         detections = detect(cfg, img, caption)
+        mode = label_match_mode(cfg)
+        # Resolved ONCE against the union, then asked which list won -- not two
+        # independent membership tests. A phrase can contain BOTH the target and
+        # a similar ('sink cabinet cabinet cabinet kitchen cabinet' contains
+        # 'sink cabinet' and 'cabinet'), and testing sequentially would award it
+        # to whichever list happens to be checked first. right_label_list is
+        # placed first so it also wins ties on specificity.
+        candidates = right_label_list + [l for l in dino_label if l not in right_label_list]
         for idx in range(len(detections.logits)):
-            label_detected = detections.phrases[idx]
+            label_detected = label_match(
+                detections.phrases[idx], candidates, mode, distractors)
             score = detections.logits[idx].item()
+            if label_detected is None:
+                continue
             if label_detected in right_label_list:
                 segmented_img, object_mask = get_segmentation(
                     segmented_img, idx, detections, img, label_detected, score, color=(255, 0, 0)

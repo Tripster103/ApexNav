@@ -15,10 +15,14 @@ was validated against GroundingDINO on byte-identical inputs on 2026-08-25
     needs no workaround. What it does NOT handle is a detection landing in the
     grey pad region below y=H; those are dropped here.
 
-  * Score scale. OWLv2's scores are NOT on GroundingDINO's scale -- median 0.081
-    against 0.256. The matched operating point for ApexNav's shipped
-    `confidence_threshold_dino: 0.40` is `0.25` (FINDINGS.md). Passing 0.40 here
-    would admit almost nothing and would measure "tuned vs untuned".
+  * Score scale. OWLv2's scores are NOT on GroundingDINO's scale. Passing 0.40
+    here would admit almost nothing and would measure "tuned vs untuned".
+
+    CORRECTED 2026-09-28: the "median 0.081 against 0.256" and the 0.25 matched
+    point both come from hm3dv1 frames where the target was mostly ABSENT, so
+    they describe FALSE-ALARM scores. On target-present frames OWLv2 scores much
+    higher (fitted c_th up to 0.814) and the volume-matched point is 0.320, not
+    0.25. See analysis/detector/FINDINGS.md's banner.
 
 Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """

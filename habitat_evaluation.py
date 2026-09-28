@@ -90,7 +90,7 @@ from llm.answer_reader.answer_reader import read_answer
 from params import HABITAT_STATE, ROS_STATE, ACTION, RESULT_TYPES
 from vlm.Labels import MP3D_ID_TO_NAME
 from vlm.utils.get_itm_message import get_itm_message_cosine
-from vlm.utils.get_object_utils import get_object, llm_answer_path_for
+from vlm.utils.get_object_utils import get_object, llm_answer_path_for, load_label_vocabulary
 
 
 def publish_int32(publisher, data):
@@ -396,6 +396,13 @@ def main(cfg: DictConfig) -> None:
     # c_th lives on the active detector's score scale, so the llm_answer file has
     # to follow detector.backend. See llm_answer_path_for().
     llm_answer_path = llm_answer_path_for(llm_cfg.llm_answer_path, detector_cfg)
+    # Every category name the dataset knows about, loaded once. Handed to
+    # get_object() as DISTRACTORS so that fuzzy label matching cannot credit a
+    # detection of a MORE SPECIFIC sibling category to a generic goal --
+    # OVON val_seen has five separate cabinet categories, and without this a
+    # `bathroom cabinet` detection is awarded to a `cabinet` episode. Inert
+    # under label_match: exact. See get_object_utils.label_match().
+    label_vocabulary = load_label_vocabulary(llm_answer_path)
     llm_response_path = llm_cfg.llm_response_path
 
     # Single test parameters
@@ -610,7 +617,8 @@ def main(cfg: DictConfig) -> None:
 
             # Detect objects in the current observation
             observations["rgb"], score_list, object_masks_list, label_list = get_object(
-                label, observations["rgb"], detector_cfg, llm_answer
+                label, observations["rgb"], detector_cfg, llm_answer,
+                distractors=label_vocabulary
             )
 
             # Publish habitat observations to ROS

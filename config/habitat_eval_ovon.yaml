@@ -152,16 +152,57 @@ detector:
   groundingDINO:
     confidence_threshold_dino: 0.40
     text_threshold: 0.25
+    # How the returned LABEL is decoded from the model's per-token scores.
+    # False is upstream's default and ApexNav's shipped behaviour.
+    #
+    # GroundingDINO returns no text -- it returns a score per box per CAPTION
+    # TOKEN, and the label is manufactured afterwards. With False, every token
+    # above text_threshold is decoded together regardless of which category it
+    # came from, so our category-list captions produce merged strings like
+    # 'cabinet cabinet cabinet kitchen cabinet', which match no category name and
+    # are discarded (27.4% of detections on ovon val_seen target-present frames).
+    # With True, decoding is bounded to the caption segment containing the box's
+    # argmax token -- one segment, one category name.
+    #
+    # The model already separates the categories internally (the paper's
+    # "sub-sentence level" text features use block-diagonal attention masks for
+    # exactly that); only the decoder ignores the boundaries. Inherited from VLFM.
+    remove_combined: false
+
+    # How a returned phrase is matched against the goal / similar labels.
+    # 'exact' is the shipped behaviour and the baseline -- do not change it to
+    # "improve" a run, or every banked result becomes incomparable.
+    #
+    # GroundingDINO does phrase grounding: it is handed ONE concatenated caption
+    # and reports, per box, which caption tokens fired, glued together. So it
+    # returns things like 'cabinet cabinet cabinet kitchen cabinet' -- a readout
+    # of the caption, not a category name. 'exact' discards those (0 of 117
+    # detections counted as the target on ovon ep 61; 27% lost across captions).
+    # OWLv2 cannot hit this: it returns a query INDEX, so its label is always one
+    # of the strings we asked for.
+    #
+    # 'fuzzy' (token-set containment, most specific wins) exists to make that a
+    # separately measurable ARM, so an OWLv2 win can be attributed to detector
+    # quality rather than to output format. See vlm/utils/get_object_utils.py's
+    # label_match() and analysis/detector/test_label_match.py.
+    label_match: exact
 
   # Which open-vocabulary detector runs. 'groundingDINO' (default, the shipped
   # baseline) or 'owlv2'. Flip this to switch arms -- no source edit.
   backend: groundingDINO
 
   owlv2:
-    # NOT interchangeable with confidence_threshold_dino. OWLv2's median
-    # detection scores 0.081 against GroundingDINO's 0.256; 0.25 is the matched
-    # operating point that equalises detection volume with GDINO's 0.40.
-    # Sweep 0.15 / 0.20 / 0.25 / 0.35. See analysis/detector/FINDINGS.md.
+    # NOT interchangeable with confidence_threshold_dino -- the two detectors do
+    # not score on the same scale.
+    #
+    # OPEN DECISION (2026-09-28). 0.25 came from volume-matching GDINO's 0.40 on
+    # hm3dv1 frames where the target was mostly ABSENT, i.e. it equalises
+    # FALSE-ALARM volume. Redone on 1871 ovon val_seen frames where the target is
+    # guaranteed present, the volume-matched point is 0.320, and at 0.25 OWLv2
+    # emits 58% more detections than GDINO does at 0.40 -- so this arm currently
+    # runs hotter than matched. Left at 0.25 so it is a deliberate choice rather
+    # than a silent edit; decide before the sweep and record which was used.
+    # See analysis/detector/phrase_loss.py and notes/2026-09-28.md finding 4.
     confidence_threshold_owlv2: 0.25
     # No text_threshold: it gates GroundingDINO's phrase-grounding step, which
     # OWLv2 does not have. The key would be dead rather than transferable.
