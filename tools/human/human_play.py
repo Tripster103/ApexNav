@@ -20,7 +20,7 @@ which carries the full 9-bind NVIDIA/EGL set and the cache env vars:
 
     # or a whole playlist, played back to back:
     bash /scratch2/ml20/btripcon/FYP/scripts/run_human_play.sh --dataset hm3dv1 \\
-        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1_random50_v1.json
+        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1/hm3dv1_random50_v1.json
 
 Build a playlist with either of two tools, both of which emit the 0-based indices
 as selection.indices_0based:
@@ -331,21 +331,15 @@ class HumanSession:
                     }
                 )
 
-        self.env = habitat.Env(cfg)
-        # Iterator index currently assigned to env.current_episode. Env.__init__
-        # consumes index 0, so we start there.
-        self.consumed = 0
-        # Dataset size, for the modular seek in load(). With cycle:True the
-        # iterator wraps after this many steps, so stepping (target - consumed)
-        # mod n_episodes always lands on `target` regardless of direction.
-        self.n_episodes = len(self.env.episodes)
-
         self.record_path = os.path.join(out_dir, "record.txt")
         self.continue_path = os.path.join(out_dir, "continue.txt")
 
         # Resume exactly the way habitat_evaluation.py does: continue.txt's newest
         # block carries the cumulative totals, and No.N tells us N episodes are
         # already done, so play resumes at playlist[N].
+        #
+        # Read BEFORE habitat.Env is constructed: the resume position decides
+        # which scene the simulator should be built on. See the pre-seek below.
         (
             self.num_total,
             self.num_success,
@@ -366,6 +360,51 @@ class HumanSession:
         if self.position:
             print(f"resuming at playlist entry {self.position + 1}/{len(self.playlist)}",
                   flush=True)
+
+        # Construct the Env directly on the episode we are about to play rather
+        # than on iterator index 0, which saves one full scene load per startup.
+        #
+        # Env.__init__ does `current_episode = next(self.episode_iterator)` and
+        # feeds that episode's scene_id to make_sim (env.py:65-76), so a plain
+        # construction always loads index 0's scene. load() below then resets onto
+        # playlist[position], whose scene is almost never that one, and habitat
+        # pays a second full scene load. HabitatSim.reconfigure skips the reload
+        # when the scene is unchanged (habitat_simulator.py:514-517), so starting
+        # on the target episode makes that second load free.
+        #
+        # The pre-seek is the SAME forward walk load() already performs, merely
+        # moved ahead of make_sim: _setup_episode_iterator is patched for exactly
+        # one construction to advance the fresh iterator `first_target` times, so
+        # Env.__init__'s own next() yields index `first_target`. The total number
+        # of next() calls is unchanged, so the iterator lands on the identical
+        # episode it would have reached before -- this is a pure ordering change,
+        # it cannot alter which episode is played.
+        first_target = (
+            self.playlist[self.position] if self.position < len(self.playlist) else 0
+        )
+        _orig_setup_iter = habitat.Env._setup_episode_iterator
+
+        def _setup_iter_and_seek(env_self):
+            _orig_setup_iter(env_self)
+            for _ in range(first_target):
+                next(env_self.episode_iterator)
+
+        habitat.Env._setup_episode_iterator = _setup_iter_and_seek
+        try:
+            self.env = habitat.Env(cfg)
+        finally:
+            # Restored before any reconfigure(), which calls the same method
+            # (env.py:153) and must NOT re-seek.
+            habitat.Env._setup_episode_iterator = _orig_setup_iter
+
+        # Iterator index currently assigned to env.current_episode. The pre-seek
+        # above means that is first_target, not 0.
+        self.consumed = first_target
+        # Dataset size, for the modular seek in load(). With cycle:True the
+        # iterator wraps after this many steps, so stepping (target - consumed)
+        # mod n_episodes always lands on `target` regardless of direction.
+        self.n_episodes = len(self.env.episodes)
+
         self.load(self.position)
 
     def load(self, position):

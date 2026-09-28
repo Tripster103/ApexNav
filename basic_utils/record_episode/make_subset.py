@@ -31,7 +31,7 @@ Usage
   # ApexNav's numbers on the episodes a human-play playlist names. The eval is
   # named explicitly here; scripts/make_subset.sh defaults it to the baseline
   # and looks the playlist up by stem:  bash make_subset.sh mp3d_random50_v1
-  make_subset.py --playlist playlists/mp3d_random50_v1.json \
+  make_subset.py --playlist playlists/mp3d/mp3d_random50_v1.json \
       ../results/mp3d/apexnav/baseline/continue.txt
 
   # first 100 episodes (0-based, inclusive ranges)

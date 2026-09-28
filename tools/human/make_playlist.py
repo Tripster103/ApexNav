@@ -52,9 +52,10 @@ Usage (inside the apexnav container; runs from any directory):
     python tools/human/make_playlist.py --dataset mp3d --target chair sofa
     python tools/human/make_playlist.py --dataset hm3dv2 --dry-run
 
-Writes <repo>/playlists/<dataset>_<name>.json. Play it with:
+Writes <repo>/playlists/<dataset>/<dataset>_<name>.json -- one subdirectory per
+dataset, so a dataset's playlists stay together as they accumulate. Play it with:
     bash scripts/run_human_play.sh --dataset hm3dv1 \\
-        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1_random50_v1.json
+        --playlist /scratch2/ml20/btripcon/FYP/ApexNav/playlists/hm3dv1/hm3dv1_random50_v1.json
 
 Note on datasets: OVON's val splits reuse HM3Dv2's 36 scenes exactly -- the
 seen/unseen axis is object *categories* (79 vs 49, zero overlap), not scenes. So
@@ -64,6 +65,7 @@ episodes.
 Authored by Claude (Anthropic Claude Opus 5) for Broden Tripcony.
 """
 import argparse
+import glob
 import json
 import os
 import random
@@ -79,6 +81,42 @@ from find_episode_index import build_iterator
 # automatically -- but it does NOT put the repo root there, hence the explicit
 # path here rather than a bare relative default.
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PLAYLIST_DIR = os.path.join(REPO_ROOT, "playlists")
+
+
+def resolve_playlist(name, dataset=None):
+    """Turn a playlist reference into a path: stem, filename, or path all work.
+
+    Playlists live in <repo>/playlists/<dataset>/, so a bare stem is searched in
+    this dataset's subdirectory first, then across every dataset (stems carry
+    their dataset as a prefix, so a cross-dataset hit is unambiguous), then in
+    playlists/ itself for anything left over from the flat layout.
+    """
+    if os.path.exists(name):
+        return name
+    stem = os.path.basename(name)
+    if not stem.endswith(".json"):
+        stem += ".json"
+    roots = ([os.path.join(PLAYLIST_DIR, dataset)] if dataset else [])
+    roots += sorted(glob.glob(os.path.join(PLAYLIST_DIR, "*", "")))
+    roots.append(PLAYLIST_DIR)
+    seen, hits = set(), []
+    for root in roots:
+        cand = os.path.join(root, stem)
+        real = os.path.realpath(cand)
+        if os.path.isfile(cand) and real not in seen:
+            seen.add(real)
+            hits.append(cand)
+    if not hits:
+        sys.exit(
+            f"no playlist '{name}' -- looked for {stem} under "
+            f"{os.path.relpath(PLAYLIST_DIR, REPO_ROOT)}/*/"
+        )
+    if len(hits) > 1:
+        sys.exit(
+            f"'{name}' is ambiguous:\n  " + "\n  ".join(hits) + "\nname a path"
+        )
+    return hits[0]
 
 
 def scan(dataset):
@@ -399,7 +437,8 @@ def main():
     ap.add_argument(
         "--out-dir",
         default=None,
-        help="where to write the json (default: <repo>/playlists/)",
+        help="where to write the json (default: <repo>/playlists/<dataset>/); "
+        "given verbatim, no dataset subdirectory is appended",
     )
     ap.add_argument(
         "--alloc",
@@ -416,7 +455,9 @@ def main():
         nargs="+",
         metavar="PLAYLIST",
         help="playlist json(s) whose indices_0based must NOT appear in the draw; "
-        "use this to keep a new playlist disjoint from one already played",
+        "use this to keep a new playlist disjoint from one already played. "
+        "A bare stem (hm3dv1_random50_v1) is looked up under "
+        "<repo>/playlists/<dataset>/",
     )
     ap.add_argument(
         "--set-label",
@@ -444,6 +485,7 @@ def main():
 
     excluded = set()
     if args.exclude:
+        args.exclude = [resolve_playlist(f, args.dataset) for f in args.exclude]
         for f in args.exclude:
             with open(f, encoding="utf-8") as fh:
                 excluded |= set(json.load(fh)["selection"]["indices_0based"])
@@ -489,7 +531,7 @@ def main():
     )
 
     base = args.name or f"random{args.n}_seed{args.seed}"
-    out_dir = args.out_dir or os.path.join(REPO_ROOT, "playlists")
+    out_dir = args.out_dir or os.path.join(REPO_ROOT, "playlists", args.dataset)
     labels = (
         [""]
         if args.sets == 1
