@@ -17,7 +17,7 @@ def read_record(continue_path, flag_once=False):
     Returns:
         tuple: (num_total, num_success, spl_all, soft_spl_all,
                 distance_to_goal_all, distance_to_goal_reward_all,
-                step_spl_all, last_time)
+                step_spl_all, soft_step_spl_all, last_time)
 
     Metrics returned:
         - num_total: Total number of episodes completed
@@ -27,6 +27,8 @@ def read_record(continue_path, flag_once=False):
         - distance_to_goal_all: Cumulative distance to goal
         - distance_to_goal_reward_all: Cumulative distance-based rewards
         - step_spl_all: Cumulative StepSPL metric
+        - soft_step_spl_all: Cumulative SoftStepSPL metric (0.0 when resuming a
+          record written before SoftStepSPL existed -- see below)
         - last_time: Time spent on last episode
     """
     # Initialize variables to store the metrics
@@ -37,6 +39,7 @@ def read_record(continue_path, flag_once=False):
     distance_to_goal_all = 0.0
     distance_to_goal_reward_all = 0.0
     step_spl_all = 0.0
+    soft_step_spl_all = 0.0
     last_time = 0.0
 
     # Return directly for single run
@@ -49,6 +52,7 @@ def read_record(continue_path, flag_once=False):
             distance_to_goal_all,
             distance_to_goal_reward_all,
             step_spl_all,
+            soft_step_spl_all,
             last_time,
         )
     # Confirm file exists
@@ -74,6 +78,21 @@ def read_record(continue_path, flag_once=False):
             step_spl_all = float(
                 re.search(r"Total StepSPL\s+\|\s+([\d\.]+)", latest_record).group(1)
             )
+            # SoftStepSPL was added 2026-10-06. A run started before then has no
+            # such row; resume it with a 0.0 total rather than crash, so a
+            # requeued old sweep keeps going. Its SoftStepSPL then only covers
+            # the episodes run after the resume and is not comparable.
+            soft_step_spl_match = re.search(
+                r"Total SoftStepSPL\s+\|\s+([\d\.]+)", latest_record
+            )
+            if soft_step_spl_match:
+                soft_step_spl_all = float(soft_step_spl_match.group(1))
+            else:
+                print(
+                    "[read_record WARNING] no Total SoftStepSPL row in "
+                    f"{continue_path} -- resuming SoftStepSPL from 0.0; it will "
+                    "not cover the episodes already run"
+                )
             distance_to_goal_all = float(
                 re.search(
                     r"Total Distance to Goal\s+\|\s+([\d\.]+)", latest_record
@@ -100,5 +119,6 @@ def read_record(continue_path, flag_once=False):
         distance_to_goal_all,
         distance_to_goal_reward_all,
         step_spl_all,
+        soft_step_spl_all,
         last_time,
     )

@@ -68,6 +68,14 @@ import os
 import sys
 import time
 
+# Startup is dominated by phases the user cannot see (the port does not bind
+# until all of them finish, so a browser hitting it early gets connection
+# refused and the run looks hung). _T0/_phase() timestamp them on stdout.
+_T0 = time.time()
+
+def _phase(label):
+    print(f"[startup {time.time() - _T0:7.1f}s] {label}", flush=True)
+
 import numpy as np
 
 # Repo paths resolved from this file, not the working directory. This script sits
@@ -115,6 +123,8 @@ from habitat.config.default_structured_configs import (
 from habitat.sims.habitat_simulator.actions import HabitatSimActions
 from habitat.tasks.nav.shortest_path_follower import ShortestPathFollower
 from habitat.utils.visualizations.utils import observations_to_image, overlay_frame
+
+_phase("imports done (habitat, torch, hydra)")
 
 from basic_utils.record_episode.read_record import read_record
 from basic_utils.record_episode.write_record import write_record
@@ -293,6 +303,62 @@ def load_playlist(path, dataset):
     return ordered
 
 
+def nearby_annotated_objects(env, episode, top_n=4):
+    """What did the player actually stop next to, and how is it annotated?
+
+    Exists because OVON is fine-grained: chair / couch / bench / stool /
+    armchair are SEPARATE goal categories, and success requires an instance
+    annotated with the episode's exact category. A human who stops at a
+    wooden-framed upholstered settee for a `chair` episode gets a false
+    positive not because they navigated badly but because HM3D's annotator
+    called that object a couch (observed 2026-09-29, ziup5kvtCCR ep 3799:
+    2 `chair` instances across the scene, the settee is `sofa_40` under
+    `couch`). Without this the player cannot tell those two failure modes
+    apart, and they mean completely different things for the benchmark.
+
+    Straight-line distance to each annotated object's centroid, NOT geodesic:
+    this only has to identify what is in front of the player, and a pathfinder
+    call per object would add latency to the end of every episode. The
+    authoritative distance-to-goal is habitat's own measure, already shown.
+
+    Read-only and advisory -- it never feeds success, SPL, StepSPL or anything
+    written to record.txt / continue.txt.
+    """
+    try:
+        pos = np.asarray(env.sim.get_agent_state().position, dtype=float)
+
+        # OVON keeps every annotated instance in goals_by_category; other
+        # datasets only expose this episode's own goals. Same getattr guards as
+        # compute_oracle_step_count, so this degrades to the goal list.
+        gbc = getattr(getattr(env, "_dataset", None), "goals_by_category", None)
+        cands = []
+        if gbc:
+            scene_key = episode.scene_id.split("/")[-1]
+            prefix = f"{scene_key}_"
+            for key, goals in gbc.items():
+                if not key.startswith(prefix):
+                    continue          # another scene's annotations
+                cat = key[len(prefix):]
+                for g in goals:
+                    cands.append((cat, getattr(g, "object_id", "?"), g.position))
+        else:
+            for g in getattr(episode, "goals", []) or []:
+                cands.append((getattr(g, "object_category", episode.object_category),
+                              getattr(g, "object_id", "?"), g.position))
+
+        out = []
+        for cat, oid, p in cands:
+            d = float(np.linalg.norm(pos - np.asarray(p, dtype=float)))
+            out.append({"category": cat, "object_id": str(oid), "dist": d,
+                        "is_target": cat == episode.object_category})
+        out.sort(key=lambda r: r["dist"])
+        return out[:top_n]
+    except Exception as e:  # noqa: BLE001 -- advisory only, never break scoring
+        print(f"[diagnostic] nearby_annotated_objects failed "
+              f"({type(e).__name__}: {e})", flush=True)
+        return []
+
+
 class HumanSession:
     """Owns the env and walks a playlist of episodes, accumulating the same
     cumulative totals habitat_evaluation.py keeps, so the record.txt/continue.txt
@@ -348,6 +414,7 @@ class HumanSession:
             self.distance_to_goal_all,
             self.distance_to_goal_reward_all,
             self.step_spl_all,
+            self.soft_step_spl_all,
             self.cum_seconds,
         ) = read_record(self.continue_path, flag_once=no_save)
 
@@ -390,12 +457,18 @@ class HumanSession:
                 next(env_self.episode_iterator)
 
         habitat.Env._setup_episode_iterator = _setup_iter_and_seek
+        _t = time.time()
         try:
             self.env = habitat.Env(cfg)
         finally:
             # Restored before any reconfigure(), which calls the same method
             # (env.py:153) and must NOT re-seek.
             habitat.Env._setup_episode_iterator = _orig_setup_iter
+        _phase(
+            f"habitat.Env built in {time.time() - _t:.1f}s "
+            f"(pre-seek {first_target} iterator steps, scene "
+            f"{os.path.basename(self.env.current_episode.scene_id)})"
+        )
 
         # Iterator index currently assigned to env.current_episode. The pre-seek
         # above means that is first_target, not 0.
@@ -438,9 +511,22 @@ class HumanSession:
         self.env.current_episode = ep_obj
         self.consumed = target
 
+        _t = time.time()
         self.obs = self.env.reset()
+        _t_reset = time.time()
+        # d_start for SoftStepSPL, read at reset exactly as habitat_evaluation.py
+        # does (and as habitat's SoftSPL does internally).
+        self.start_distance_to_goal = self.env.get_metrics()["distance_to_goal"]
         self.oracle_steps = compute_oracle_step_count(
             self.env, self.success_distance, self.max_steps
+        )
+        # One geodesic_distance call per goal view point, then a step-by-step
+        # ShortestPathFollower rollout -- both scale with the episode, not with
+        # the playlist position, and vary 1..636 view points across ovon.
+        _phase(
+            f"episode {position + 1}/{len(self.playlist)} loaded: "
+            f"reset {_t_reset - _t:.1f}s + oracle {time.time() - _t_reset:.1f}s "
+            f"(oracle_steps={self.oracle_steps})"
         )
         self.episode = self.env.current_episode
         self.target = self.episode.object_category
@@ -563,19 +649,32 @@ class HumanSession:
         else:
             self.result = "stepout feasible"
 
-        self.step_spl = success * (
-            self.oracle_steps / max(self.steps, self.oracle_steps, 1)
-        )
+        step_efficiency = self.oracle_steps / max(self.steps, self.oracle_steps, 1)
+        self.step_spl = success * step_efficiency
+        # SoftStepSPL -- same definition and same non-finite/zero fallback as
+        # habitat_evaluation.py; keep the two in sync.
+        d_start = self.start_distance_to_goal
+        d_final = info["distance_to_goal"]
+        if math.isfinite(d_start) and d_start > 0 and math.isfinite(d_final):
+            soft_success = max(0.0, 1.0 - d_final / d_start)
+        else:
+            soft_success = float(success)
+        self.soft_step_spl = soft_success * step_efficiency
+        # Advisory only -- deliberately NOT added to self.metrics, which is what
+        # _accumulate_and_save folds into the running totals and writes out.
+        self.nearby = nearby_annotated_objects(self.env, self.episode)
         self.metrics = {
             "success": success,
             "spl": float(info["spl"]) if math.isfinite(info["spl"]) else 0.0,
             "soft_spl": float(info["soft_spl"]) if math.isfinite(info["soft_spl"]) else 0.0,
             "step_spl": self.step_spl,
+            "soft_step_spl": self.soft_step_spl,
             "distance_to_goal": float(info["distance_to_goal"]),
         }
         self._accumulate_and_save()
         s = self.state()
         s["metrics"] = self.metrics
+        s["nearby"] = self.nearby
         s["totals"] = {
             "n": self.num_total,
             "success_pct": self.num_success / self.num_total * 100,
@@ -599,6 +698,7 @@ class HumanSession:
         self.spl_all += m["spl"] if math.isfinite(m["spl"]) else 0.0
         self.soft_spl_all += m["soft_spl"] if math.isfinite(m["soft_spl"]) else 0.0
         self.step_spl_all += m["step_spl"]
+        self.soft_step_spl_all += m["soft_step_spl"]
         self.distance_to_goal_all += (
             m["distance_to_goal"] if math.isfinite(m["distance_to_goal"]) else 0.0
         )
@@ -613,6 +713,7 @@ class HumanSession:
         table1.add_row(["Average SPL", f"{self.spl_all / n * 100:.2f}%"])
         table1.add_row(["Average Soft SPL", f"{self.soft_spl_all / n * 100:.2f}%"])
         table1.add_row(["Average StepSPL", f"{self.step_spl_all / n * 100:.2f}%"])
+        table1.add_row(["Average SoftStepSPL", f"{self.soft_step_spl_all / n * 100:.2f}%"])
         table1.add_row(["Average Distance to Goal", f"{self.distance_to_goal_all / n:.4f}"])
 
         table2 = PrettyTable(["Metric", "Total"])
@@ -620,6 +721,7 @@ class HumanSession:
         table2.add_row(["Total SPL", f"{self.spl_all:.2f}"])
         table2.add_row(["Total Soft SPL", f"{self.soft_spl_all:.2f}"])
         table2.add_row(["Total StepSPL", f"{self.step_spl_all:.2f}"])
+        table2.add_row(["Total SoftStepSPL", f"{self.soft_step_spl_all:.2f}"])
         table2.add_row(["Total Distance to Goal", f"{self.distance_to_goal_all:.4f}"])
 
         # Totals above are still accumulated under --no-save so the on-screen
@@ -698,9 +800,19 @@ function paint(s){
       '<tr><td>SPL</td><td>'+(100*m.spl).toFixed(2)+'%</td></tr>'+
       '<tr><td>Soft SPL</td><td>'+(100*m.soft_spl).toFixed(2)+'%</td></tr>'+
       '<tr><td>StepSPL</td><td>'+(100*m.step_spl).toFixed(2)+'%</td></tr>'+
+      '<tr><td>SoftStepSPL</td><td>'+(100*m.soft_step_spl).toFixed(2)+'%</td></tr>'+
       '<tr><td>your steps / oracle</td><td>'+s.steps+' / '+s.oracle_steps+'</td></tr>'+
       '<tr><td>distance to goal</td><td>'+m.distance_to_goal.toFixed(3)+' m</td></tr>'+
-      '</table><p>Run so far: <b>'+(s.totals?s.totals.n:0)+'</b> episodes, SR <b>'+
+      ((s.nearby&&s.nearby.length)?
+        '<tr><td>you stopped near</td><td>'+s.nearby.map(function(o){
+          return (o.is_target?'<b>':'')+o.category+' '+o.dist.toFixed(2)+'m'+(o.is_target?'</b>':'');
+        }).join(' &middot; ')+'</td></tr>':'')+
+      '</table>'+
+      ((s.result==='false positive'&&s.nearby&&s.nearby.length&&!s.nearby[0].is_target)?
+        '<p style="color:#e8a33d">Nearest annotated object is <b>'+s.nearby[0].category+
+        '</b>, not <b>'+s.target+'</b> &mdash; this looks like an annotation/ontology '+
+        'mismatch rather than a navigation error.</p>':'')+
+      '<p>Run so far: <b>'+(s.totals?s.totals.n:0)+'</b> episodes, SR <b>'+
       (s.totals?s.totals.success_pct.toFixed(1):'0')+'%</b>, SPL '+
       (s.totals?s.totals.spl_pct.toFixed(1):'0')+'%.'+
       ' Written to record.txt / continue.txt. Press <kbd>N</kbd> for the next episode.</p>';
@@ -937,6 +1049,7 @@ def main():
     # threaded front-end marshalling sim calls to one worker thread that owns the
     # EGL context; this is the cheap mitigation.
     WSGIRequestHandler.timeout = REQUEST_TIMEOUT_S
+    _phase(f"READY -- binding port {args.port}, open http://localhost:{args.port}")
     app.run(host="127.0.0.1", port=args.port, threaded=False, debug=False)
 
 

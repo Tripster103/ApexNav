@@ -449,6 +449,7 @@ def main(cfg: DictConfig) -> None:
         distance_to_goal_all,
         distance_to_goal_reward_all,
         step_spl_all,
+        soft_step_spl_all,
         last_time,
     ) = read_record(continue_path, flag_once)
 
@@ -508,6 +509,10 @@ def main(cfg: DictConfig) -> None:
 
         camera_pitch = 0.0
         observations = env.reset()
+        # d_start for SoftStepSPL -- the same reference habitat's SoftSPL takes
+        # (DistanceToGoal at reset). Read before the oracle rollout for clarity;
+        # that rollout uses raw sim.step() so it would not move this value anyway.
+        start_distance_to_goal = env.get_metrics()["distance_to_goal"]
         oracle_step_count = compute_oracle_step_count(
             env, success_distance, max_episode_steps
         )
@@ -676,9 +681,23 @@ def main(cfg: DictConfig) -> None:
         # continuous path length -- max(..., 1) guards the 0/0 case where the
         # agent starts within success_distance of the goal (oracle_step_count
         # and count_steps both 0), which would otherwise raise ZeroDivisionError.
-        step_spl = success * (
-            oracle_step_count / max(count_steps, oracle_step_count, 1)
-        )
+        step_efficiency = oracle_step_count / max(count_steps, oracle_step_count, 1)
+        step_spl = success * step_efficiency
+
+        # SoftStepSPL: habitat SoftSPL's soft-success term,
+        # max(0, 1 - d_final / d_start), times StepSPL's step efficiency.
+        # d_start is inf on navmesh-unreachable goals (see the guard below) and
+        # can in principle be 0; habitat's SoftSPL goes NaN/ZeroDivision there,
+        # so fall back to the hard success value instead (0 on unreachable).
+        if (
+            math.isfinite(start_distance_to_goal)
+            and start_distance_to_goal > 0
+            and math.isfinite(distance_to_goal)
+        ):
+            soft_success = max(0.0, 1.0 - distance_to_goal / start_distance_to_goal)
+        else:
+            soft_success = float(success)
+        soft_step_spl = soft_success * step_efficiency
 
         # Check if agent got close to the target object
         if distance_to_goal <= success_distance:
@@ -714,11 +733,13 @@ def main(cfg: DictConfig) -> None:
         # poisons every subsequent average for the rest of the run (NaN/inf
         # propagate through +=). Treat non-finite as a 0.0 contribution instead
         # -- num_total still counts the episode; StepSPL is unaffected since its
-        # formula can't produce non-finite values in the first place.
+        # formula can't produce non-finite values in the first place, and
+        # SoftStepSPL guards its own non-finite inputs where it is computed.
         num_total += 1
         spl_all += spl if math.isfinite(spl) else 0.0
         soft_spl_all += soft_spl if math.isfinite(soft_spl) else 0.0
         step_spl_all += step_spl
+        soft_step_spl_all += soft_step_spl
         distance_to_goal_all += (
             distance_to_goal if math.isfinite(distance_to_goal) else 0.0
         )
@@ -771,6 +792,9 @@ def main(cfg: DictConfig) -> None:
         table1.add_row(["Average Soft SPL", f"{soft_spl_all/num_total * 100:.2f}%"])
         table1.add_row(["Average StepSPL", f"{step_spl_all/num_total * 100:.2f}%"])
         table1.add_row(
+            ["Average SoftStepSPL", f"{soft_step_spl_all/num_total * 100:.2f}%"]
+        )
+        table1.add_row(
             ["Average Distance to Goal", f"{distance_to_goal_all/num_total:.4f}"]
         )
         print(table1)
@@ -783,6 +807,7 @@ def main(cfg: DictConfig) -> None:
         table2.add_row(["Total SPL", f"{spl_all:.2f}"])
         table2.add_row(["Total Soft SPL", f"{soft_spl_all:.2f}"])
         table2.add_row(["Total StepSPL", f"{step_spl_all:.2f}"])
+        table2.add_row(["Total SoftStepSPL", f"{soft_step_spl_all:.2f}"])
         table2.add_row(["Total Distance to Goal", f"{distance_to_goal_all:.4f}"])
 
         if flag_once:
