@@ -1,0 +1,3677 @@
+{
+  "generated": "2026-10-06T14:04:29",
+  "generator": "make_playlist.py",
+  "source": {
+    "dataset": "hm3dv1",
+    "n_episodes_total": 2000,
+    "n_scenes_total": 20
+  },
+  "selection": {
+    "name": "random450",
+    "n_selected": 450,
+    "indexing": "0-based test_epi_num into the habitat episode iterator",
+    "alloc": "proportional",
+    "excluded_playlists": [
+      "hm3dv1_random50_v1.json",
+      "hm3dv1_random50_v2A.json",
+      "hm3dv1_random50_v2B.json"
+    ],
+    "n_excluded_indices": 150,
+    "strategy": "per-scene slots proportional to scene size (Hamilton), drawn uniformly within scene, then max-spread play order (adaptive same-scene cooldown, random among eligible)",
+    "n": 450,
+    "seed": 3,
+    "sets": 1,
+    "target": null,
+    "scene": null,
+    "scene_coverage": {
+      "scenes_covered": 20,
+      "scenes_in_split": 20,
+      "complete": true
+    },
+    "category_coverage": {
+      "categories_covered": 6,
+      "categories_in_split": 6,
+      "complete": true,
+      "note": "a single set of n<categories cannot be complete; the union of all sets is what covers the label set"
+    },
+    "play_order": {
+      "min_same_scene_gap": 2,
+      "mean_same_scene_gap": 19.87,
+      "note": "slots between consecutive episodes of the same scene; 1 == back to back"
+    },
+    "indices_0based": [
+      1920,
+      227,
+      374,
+      22,
+      446,
+      122,
+      1834,
+      868,
+      1156,
+      560,
+      1735,
+      692,
+      1583,
+      901,
+      694,
+      1636,
+      1482,
+      1194,
+      1318,
+      1023,
+      1938,
+      211,
+      394,
+      4,
+      441,
+      164,
+      1876,
+      857,
+      1163,
+      546,
+      1738,
+      677,
+      1553,
+      955,
+      726,
+      1628,
+      1418,
+      1260,
+      1354,
+      1024,
+      1998,
+      267,
+      383,
+      23,
+      492,
+      159,
+      1821,
+      834,
+      1168,
+      526,
+      1685,
+      651,
+      1489,
+      906,
+      695,
+      1586,
+      1458,
+      1196,
+      1310,
+      1032,
+      1999,
+      236,
+      317,
+      61,
+      462,
+      113,
+      1858,
+      864,
+      1101,
+      542,
+      1765,
+      613,
+      1563,
+      945,
+      715,
+      1680,
+      1467,
+      1286,
+      1323,
+      1017,
+      1988,
+      229,
+      311,
+      16,
+      415,
+      146,
+      1825,
+      880,
+      1097,
+      555,
+      1683,
+      648,
+      1515,
+      978,
+      771,
+      1587,
+      1480,
+      1195,
+      1298,
+      998,
+      1983,
+      231,
+      348,
+      11,
+      480,
+      128,
+      1875,
+      828,
+      1092,
+      532,
+      1742,
+      596,
+      1522,
+      950,
+      728,
+      1670,
+      1427,
+      1205,
+      1304,
+      1008,
+      1933,
+      257,
+      309,
+      46,
+      411,
+      163,
+      1873,
+      862,
+      1154,
+      557,
+      1723,
+      688,
+      1542,
+      938,
+      757,
+      1655,
+      1451,
+      1277,
+      1341,
+      1019,
+      1963,
+      258,
+      344,
+      43,
+      409,
+      186,
+      1797,
+      833,
+      1141,
+      551,
+      1692,
+      685,
+      1495,
+      943,
+      725,
+      1675,
+      1409,
+      1265,
+      1300,
+      1051,
+      1900,
+      288,
+      307,
+      42,
+      453,
+      147,
+      1795,
+      872,
+      1098,
+      497,
+      1780,
+      678,
+      1557,
+      961,
+      751,
+      1641,
+      1438,
+      1267,
+      1290,
+      1007,
+      1891,
+      279,
+      364,
+      94,
+      416,
+      168,
+      1790,
+      811,
+      1161,
+      590,
+      1699,
+      621,
+      1534,
+      949,
+      716,
+      1617,
+      1423,
+      1201,
+      1303,
+      1026,
+      1942,
+      222,
+      373,
+      1,
+      425,
+      137,
+      1782,
+      808,
+      1127,
+      522,
+      1702,
+      635,
+      1582,
+      920,
+      723,
+      1593,
+      1475,
+      1227,
+      1369,
+      1000,
+      1907,
+      290,
+      381,
+      91,
+      401,
+      172,
+      1845,
+      809,
+      1177,
+      553,
+      1781,
+      664,
+      1490,
+      937,
+      731,
+      1630,
+      1404,
+      1211,
+      1337,
+      999,
+      1912,
+      286,
+      395,
+      59,
+      477,
+      100,
+      1794,
+      879,
+      1175,
+      538,
+      1740,
+      671,
+      1570,
+      983,
+      697,
+      1634,
+      1416,
+      1214,
+      1313,
+      1062,
+      1939,
+      218,
+      318,
+      17,
+      478,
+      169,
+      1783,
+      792,
+      1131,
+      512,
+      1777,
+      608,
+      1513,
+      973,
+      710,
+      1625,
+      1481,
+      1266,
+      1287,
+      1025,
+      1987,
+      293,
+      349,
+      41,
+      461,
+      110,
+      1799,
+      799,
+      1158,
+      524,
+      1778,
+      606,
+      1517,
+      969,
+      756,
+      1590,
+      1434,
+      1220,
+      1340,
+      1073,
+      1881,
+      256,
+      378,
+      5,
+      444,
+      102,
+      1846,
+      821,
+      1108,
+      570,
+      1701,
+      626,
+      1560,
+      956,
+      776,
+      1608,
+      1437,
+      1258,
+      1332,
+      1035,
+      1955,
+      249,
+      362,
+      36,
+      458,
+      131,
+      1787,
+      884,
+      1130,
+      495,
+      1748,
+      667,
+      1499,
+      986,
+      719,
+      1673,
+      1430,
+      1235,
+      1331,
+      1042,
+      1931,
+      253,
+      336,
+      73,
+      439,
+      152,
+      1872,
+      875,
+      1133,
+      498,
+      1734,
+      625,
+      1551,
+      930,
+      724,
+      1602,
+      1413,
+      1217,
+      1348,
+      1005,
+      1973,
+      273,
+      325,
+      14,
+      470,
+      187,
+      1829,
+      876,
+      1137,
+      517,
+      1728,
+      659,
+      1519,
+      900,
+      717,
+      1669,
+      1391,
+      1283,
+      1342,
+      1056,
+      1885,
+      287,
+      359,
+      44,
+      487,
+      183,
+      1820,
+      816,
+      1138,
+      580,
+      1697,
+      647,
+      1485,
+      964,
+      714,
+      1615,
+      1484,
+      1281,
+      1356,
+      1028,
+      1899,
+      284,
+      323,
+      6,
+      417,
+      165,
+      1786,
+      831,
+      1091,
+      518,
+      1746,
+      631,
+      1528,
+      904,
+      696,
+      1639,
+      1460,
+      1203,
+      1307,
+      1046,
+      1909,
+      266,
+      322,
+      24,
+      463,
+      106,
+      1785,
+      1107,
+      1687,
+      855,
+      957,
+      1539,
+      1222,
+      1883,
+      540,
+      1060,
+      162,
+      239,
+      1478,
+      744,
+      1898,
+      412,
+      1362,
+      668,
+      1919,
+      60,
+      1656,
+      1884,
+      361,
+      1971
+    ]
+  },
+  "scene_counts": {
+    "zt1RVoi7PcG": 27,
+    "6s7QHgap2fW": 23,
+    "DYehNKdT76V": 23,
+    "4ok3usBNeis": 23,
+    "Dd4bFSTQ8gi": 23,
+    "5cdEh9F2hJL": 23,
+    "ziup5kvtCCR": 22,
+    "XB4GS9ShBRE": 22,
+    "mL8ThkuaVTM": 22,
+    "Nfvxx8J5NCo": 22,
+    "wcojb4TFT35": 22,
+    "QaLdnwvtxbs": 22,
+    "qyAac8rV8Zk": 22,
+    "bxsVRursffK": 22,
+    "TEEsavR23oF": 22,
+    "svBbv1Pavdk": 22,
+    "q3zU7Yy5E5s": 22,
+    "mv2HUxq3B53": 22,
+    "p53SfW6mjZe": 22,
+    "cvZr5TUy5C5": 22
+  },
+  "target_counts": {
+    "chair": 100,
+    "bed": 97,
+    "toilet": 89,
+    "sofa": 83,
+    "tv_monitor": 57,
+    "plant": 24
+  },
+  "per_episode": [
+    {
+      "index": 1920,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "39",
+      "category": "sofa"
+    },
+    {
+      "index": 227,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "29",
+      "category": "plant"
+    },
+    {
+      "index": 374,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "77",
+      "category": "sofa"
+    },
+    {
+      "index": 22,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "22",
+      "category": "chair"
+    },
+    {
+      "index": 446,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "50",
+      "category": "bed"
+    },
+    {
+      "index": 122,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "23",
+      "category": "toilet"
+    },
+    {
+      "index": 1834,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "52",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 868,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "76",
+      "category": "bed"
+    },
+    {
+      "index": 1156,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "67",
+      "category": "sofa"
+    },
+    {
+      "index": 560,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "65",
+      "category": "sofa"
+    },
+    {
+      "index": 1735,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "52",
+      "category": "chair"
+    },
+    {
+      "index": 692,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "98",
+      "category": "bed"
+    },
+    {
+      "index": 1583,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "98",
+      "category": "bed"
+    },
+    {
+      "index": 901,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "10",
+      "category": "toilet"
+    },
+    {
+      "index": 694,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "1",
+      "category": "sofa"
+    },
+    {
+      "index": 1636,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "52",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1482,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "96",
+      "category": "sofa"
+    },
+    {
+      "index": 1194,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "6",
+      "category": "bed"
+    },
+    {
+      "index": 1318,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "31",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1023,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "33",
+      "category": "toilet"
+    },
+    {
+      "index": 1938,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "57",
+      "category": "chair"
+    },
+    {
+      "index": 211,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "13",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 394,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "97",
+      "category": "toilet"
+    },
+    {
+      "index": 4,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "4",
+      "category": "chair"
+    },
+    {
+      "index": 441,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "45",
+      "category": "bed"
+    },
+    {
+      "index": 164,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "65",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1876,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "94",
+      "category": "plant"
+    },
+    {
+      "index": 857,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "65",
+      "category": "toilet"
+    },
+    {
+      "index": 1163,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "74",
+      "category": "chair"
+    },
+    {
+      "index": 546,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "51",
+      "category": "chair"
+    },
+    {
+      "index": 1738,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "55",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 677,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "83",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1553,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "68",
+      "category": "toilet"
+    },
+    {
+      "index": 955,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "64",
+      "category": "chair"
+    },
+    {
+      "index": 726,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "33",
+      "category": "bed"
+    },
+    {
+      "index": 1628,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "44",
+      "category": "chair"
+    },
+    {
+      "index": 1418,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "32",
+      "category": "toilet"
+    },
+    {
+      "index": 1260,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "72",
+      "category": "bed"
+    },
+    {
+      "index": 1354,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "67",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1024,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "34",
+      "category": "sofa"
+    },
+    {
+      "index": 1998,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "117",
+      "category": "bed"
+    },
+    {
+      "index": 267,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "69",
+      "category": "plant"
+    },
+    {
+      "index": 383,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "86",
+      "category": "toilet"
+    },
+    {
+      "index": 23,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "23",
+      "category": "chair"
+    },
+    {
+      "index": 492,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "96",
+      "category": "sofa"
+    },
+    {
+      "index": 159,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "60",
+      "category": "chair"
+    },
+    {
+      "index": 1821,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "39",
+      "category": "sofa"
+    },
+    {
+      "index": 834,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "42",
+      "category": "bed"
+    },
+    {
+      "index": 1168,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "79",
+      "category": "chair"
+    },
+    {
+      "index": 526,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "31",
+      "category": "bed"
+    },
+    {
+      "index": 1685,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "2",
+      "category": "sofa"
+    },
+    {
+      "index": 651,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "57",
+      "category": "sofa"
+    },
+    {
+      "index": 1489,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "4",
+      "category": "bed"
+    },
+    {
+      "index": 906,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "15",
+      "category": "chair"
+    },
+    {
+      "index": 695,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "2",
+      "category": "sofa"
+    },
+    {
+      "index": 1586,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "2",
+      "category": "toilet"
+    },
+    {
+      "index": 1458,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "72",
+      "category": "chair"
+    },
+    {
+      "index": 1196,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "8",
+      "category": "sofa"
+    },
+    {
+      "index": 1310,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "23",
+      "category": "toilet"
+    },
+    {
+      "index": 1032,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "42",
+      "category": "chair"
+    },
+    {
+      "index": 1999,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "118",
+      "category": "chair"
+    },
+    {
+      "index": 236,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "38",
+      "category": "sofa"
+    },
+    {
+      "index": 317,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "20",
+      "category": "bed"
+    },
+    {
+      "index": 61,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "61",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 462,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "66",
+      "category": "toilet"
+    },
+    {
+      "index": 113,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "14",
+      "category": "sofa"
+    },
+    {
+      "index": 1858,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "76",
+      "category": "chair"
+    },
+    {
+      "index": 864,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "72",
+      "category": "sofa"
+    },
+    {
+      "index": 1101,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "12",
+      "category": "bed"
+    },
+    {
+      "index": 542,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "47",
+      "category": "sofa"
+    },
+    {
+      "index": 1765,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "82",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 613,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "19",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1563,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "78",
+      "category": "toilet"
+    },
+    {
+      "index": 945,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "54",
+      "category": "toilet"
+    },
+    {
+      "index": 715,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "22",
+      "category": "chair"
+    },
+    {
+      "index": 1680,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "96",
+      "category": "toilet"
+    },
+    {
+      "index": 1467,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "81",
+      "category": "bed"
+    },
+    {
+      "index": 1286,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "98",
+      "category": "toilet"
+    },
+    {
+      "index": 1323,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "36",
+      "category": "chair"
+    },
+    {
+      "index": 1017,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "27",
+      "category": "toilet"
+    },
+    {
+      "index": 1988,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "107",
+      "category": "bed"
+    },
+    {
+      "index": 229,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "31",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 311,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "14",
+      "category": "sofa"
+    },
+    {
+      "index": 16,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "16",
+      "category": "sofa"
+    },
+    {
+      "index": 415,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "19",
+      "category": "toilet"
+    },
+    {
+      "index": 146,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "47",
+      "category": "chair"
+    },
+    {
+      "index": 1825,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "43",
+      "category": "sofa"
+    },
+    {
+      "index": 880,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "88",
+      "category": "bed"
+    },
+    {
+      "index": 1097,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "8",
+      "category": "toilet"
+    },
+    {
+      "index": 555,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "60",
+      "category": "sofa"
+    },
+    {
+      "index": 1683,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "0",
+      "category": "toilet"
+    },
+    {
+      "index": 648,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "54",
+      "category": "chair"
+    },
+    {
+      "index": 1515,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "30",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 978,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "87",
+      "category": "bed"
+    },
+    {
+      "index": 771,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "78",
+      "category": "bed"
+    },
+    {
+      "index": 1587,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "3",
+      "category": "plant"
+    },
+    {
+      "index": 1480,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "94",
+      "category": "bed"
+    },
+    {
+      "index": 1195,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "7",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1298,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "11",
+      "category": "toilet"
+    },
+    {
+      "index": 998,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "8",
+      "category": "toilet"
+    },
+    {
+      "index": 1983,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "102",
+      "category": "toilet"
+    },
+    {
+      "index": 231,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "33",
+      "category": "plant"
+    },
+    {
+      "index": 348,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "51",
+      "category": "sofa"
+    },
+    {
+      "index": 11,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "11",
+      "category": "sofa"
+    },
+    {
+      "index": 480,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "84",
+      "category": "chair"
+    },
+    {
+      "index": 128,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "29",
+      "category": "sofa"
+    },
+    {
+      "index": 1875,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "93",
+      "category": "plant"
+    },
+    {
+      "index": 828,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "36",
+      "category": "sofa"
+    },
+    {
+      "index": 1092,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "3",
+      "category": "bed"
+    },
+    {
+      "index": 532,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "37",
+      "category": "bed"
+    },
+    {
+      "index": 1742,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "59",
+      "category": "toilet"
+    },
+    {
+      "index": 596,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "2",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1522,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "37",
+      "category": "bed"
+    },
+    {
+      "index": 950,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "59",
+      "category": "toilet"
+    },
+    {
+      "index": 728,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "35",
+      "category": "plant"
+    },
+    {
+      "index": 1670,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "86",
+      "category": "sofa"
+    },
+    {
+      "index": 1427,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "41",
+      "category": "bed"
+    },
+    {
+      "index": 1205,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "17",
+      "category": "toilet"
+    },
+    {
+      "index": 1304,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "17",
+      "category": "chair"
+    },
+    {
+      "index": 1008,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "18",
+      "category": "chair"
+    },
+    {
+      "index": 1933,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "52",
+      "category": "bed"
+    },
+    {
+      "index": 257,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "59",
+      "category": "sofa"
+    },
+    {
+      "index": 309,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "12",
+      "category": "sofa"
+    },
+    {
+      "index": 46,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "46",
+      "category": "chair"
+    },
+    {
+      "index": 411,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "15",
+      "category": "sofa"
+    },
+    {
+      "index": 163,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "64",
+      "category": "sofa"
+    },
+    {
+      "index": 1873,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "91",
+      "category": "toilet"
+    },
+    {
+      "index": 862,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "70",
+      "category": "chair"
+    },
+    {
+      "index": 1154,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "65",
+      "category": "chair"
+    },
+    {
+      "index": 557,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "62",
+      "category": "sofa"
+    },
+    {
+      "index": 1723,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "40",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 688,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "94",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1542,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "57",
+      "category": "chair"
+    },
+    {
+      "index": 938,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "47",
+      "category": "bed"
+    },
+    {
+      "index": 757,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "64",
+      "category": "plant"
+    },
+    {
+      "index": 1655,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "71",
+      "category": "chair"
+    },
+    {
+      "index": 1451,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "65",
+      "category": "bed"
+    },
+    {
+      "index": 1277,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "89",
+      "category": "chair"
+    },
+    {
+      "index": 1341,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "54",
+      "category": "chair"
+    },
+    {
+      "index": 1019,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "29",
+      "category": "bed"
+    },
+    {
+      "index": 1963,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "82",
+      "category": "sofa"
+    },
+    {
+      "index": 258,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "60",
+      "category": "bed"
+    },
+    {
+      "index": 344,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "47",
+      "category": "toilet"
+    },
+    {
+      "index": 43,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "43",
+      "category": "toilet"
+    },
+    {
+      "index": 409,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "13",
+      "category": "sofa"
+    },
+    {
+      "index": 186,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "87",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1797,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "15",
+      "category": "plant"
+    },
+    {
+      "index": 833,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "41",
+      "category": "chair"
+    },
+    {
+      "index": 1141,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "52",
+      "category": "toilet"
+    },
+    {
+      "index": 551,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "56",
+      "category": "chair"
+    },
+    {
+      "index": 1692,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "9",
+      "category": "bed"
+    },
+    {
+      "index": 685,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "91",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1495,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "10",
+      "category": "toilet"
+    },
+    {
+      "index": 943,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "52",
+      "category": "toilet"
+    },
+    {
+      "index": 725,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "32",
+      "category": "chair"
+    },
+    {
+      "index": 1675,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "91",
+      "category": "plant"
+    },
+    {
+      "index": 1409,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "23",
+      "category": "bed"
+    },
+    {
+      "index": 1265,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "77",
+      "category": "sofa"
+    },
+    {
+      "index": 1300,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "13",
+      "category": "sofa"
+    },
+    {
+      "index": 1051,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "61",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1900,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "19",
+      "category": "sofa"
+    },
+    {
+      "index": 288,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "90",
+      "category": "chair"
+    },
+    {
+      "index": 307,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "10",
+      "category": "chair"
+    },
+    {
+      "index": 42,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "42",
+      "category": "bed"
+    },
+    {
+      "index": 453,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "57",
+      "category": "bed"
+    },
+    {
+      "index": 147,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "48",
+      "category": "toilet"
+    },
+    {
+      "index": 1795,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "13",
+      "category": "toilet"
+    },
+    {
+      "index": 872,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "80",
+      "category": "chair"
+    },
+    {
+      "index": 1098,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "9",
+      "category": "sofa"
+    },
+    {
+      "index": 497,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "2",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1780,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "97",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 678,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "84",
+      "category": "sofa"
+    },
+    {
+      "index": 1557,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "72",
+      "category": "toilet"
+    },
+    {
+      "index": 961,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "70",
+      "category": "toilet"
+    },
+    {
+      "index": 751,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "58",
+      "category": "chair"
+    },
+    {
+      "index": 1641,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "57",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1438,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "52",
+      "category": "sofa"
+    },
+    {
+      "index": 1267,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "79",
+      "category": "chair"
+    },
+    {
+      "index": 1290,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "3",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1007,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "17",
+      "category": "sofa"
+    },
+    {
+      "index": 1891,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "10",
+      "category": "chair"
+    },
+    {
+      "index": 279,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "81",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 364,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "67",
+      "category": "bed"
+    },
+    {
+      "index": 94,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "94",
+      "category": "sofa"
+    },
+    {
+      "index": 416,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "20",
+      "category": "bed"
+    },
+    {
+      "index": 168,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "69",
+      "category": "chair"
+    },
+    {
+      "index": 1790,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "8",
+      "category": "sofa"
+    },
+    {
+      "index": 811,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "19",
+      "category": "chair"
+    },
+    {
+      "index": 1161,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "72",
+      "category": "sofa"
+    },
+    {
+      "index": 590,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "95",
+      "category": "chair"
+    },
+    {
+      "index": 1699,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "16",
+      "category": "toilet"
+    },
+    {
+      "index": 621,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "27",
+      "category": "bed"
+    },
+    {
+      "index": 1534,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "49",
+      "category": "bed"
+    },
+    {
+      "index": 949,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "58",
+      "category": "bed"
+    },
+    {
+      "index": 716,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "23",
+      "category": "chair"
+    },
+    {
+      "index": 1617,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "33",
+      "category": "chair"
+    },
+    {
+      "index": 1423,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "37",
+      "category": "bed"
+    },
+    {
+      "index": 1201,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "13",
+      "category": "chair"
+    },
+    {
+      "index": 1303,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "16",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1026,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "36",
+      "category": "toilet"
+    },
+    {
+      "index": 1942,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "61",
+      "category": "sofa"
+    },
+    {
+      "index": 222,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "24",
+      "category": "toilet"
+    },
+    {
+      "index": 373,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "76",
+      "category": "bed"
+    },
+    {
+      "index": 1,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "1",
+      "category": "bed"
+    },
+    {
+      "index": 425,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "29",
+      "category": "sofa"
+    },
+    {
+      "index": 137,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "38",
+      "category": "bed"
+    },
+    {
+      "index": 1782,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "0",
+      "category": "plant"
+    },
+    {
+      "index": 808,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "16",
+      "category": "chair"
+    },
+    {
+      "index": 1127,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "38",
+      "category": "sofa"
+    },
+    {
+      "index": 522,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "27",
+      "category": "bed"
+    },
+    {
+      "index": 1702,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "19",
+      "category": "chair"
+    },
+    {
+      "index": 635,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "41",
+      "category": "sofa"
+    },
+    {
+      "index": 1582,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "97",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 920,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "29",
+      "category": "bed"
+    },
+    {
+      "index": 723,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "30",
+      "category": "sofa"
+    },
+    {
+      "index": 1593,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "9",
+      "category": "sofa"
+    },
+    {
+      "index": 1475,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "89",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1227,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "39",
+      "category": "toilet"
+    },
+    {
+      "index": 1369,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "82",
+      "category": "sofa"
+    },
+    {
+      "index": 1000,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "10",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1907,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "26",
+      "category": "bed"
+    },
+    {
+      "index": 290,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "92",
+      "category": "plant"
+    },
+    {
+      "index": 381,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "84",
+      "category": "bed"
+    },
+    {
+      "index": 91,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "91",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 401,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "5",
+      "category": "chair"
+    },
+    {
+      "index": 172,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "73",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1845,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "63",
+      "category": "sofa"
+    },
+    {
+      "index": 809,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "17",
+      "category": "bed"
+    },
+    {
+      "index": 1177,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "88",
+      "category": "bed"
+    },
+    {
+      "index": 553,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "58",
+      "category": "bed"
+    },
+    {
+      "index": 1781,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "98",
+      "category": "chair"
+    },
+    {
+      "index": 664,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "70",
+      "category": "chair"
+    },
+    {
+      "index": 1490,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "5",
+      "category": "bed"
+    },
+    {
+      "index": 937,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "46",
+      "category": "toilet"
+    },
+    {
+      "index": 731,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "38",
+      "category": "plant"
+    },
+    {
+      "index": 1630,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "46",
+      "category": "chair"
+    },
+    {
+      "index": 1404,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "18",
+      "category": "bed"
+    },
+    {
+      "index": 1211,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "23",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1337,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "50",
+      "category": "toilet"
+    },
+    {
+      "index": 999,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "9",
+      "category": "toilet"
+    },
+    {
+      "index": 1912,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "31",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 286,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "88",
+      "category": "toilet"
+    },
+    {
+      "index": 395,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "98",
+      "category": "bed"
+    },
+    {
+      "index": 59,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "59",
+      "category": "chair"
+    },
+    {
+      "index": 477,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "81",
+      "category": "chair"
+    },
+    {
+      "index": 100,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "1",
+      "category": "sofa"
+    },
+    {
+      "index": 1794,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "12",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 879,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "87",
+      "category": "bed"
+    },
+    {
+      "index": 1175,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "86",
+      "category": "bed"
+    },
+    {
+      "index": 538,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "43",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1740,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "57",
+      "category": "chair"
+    },
+    {
+      "index": 671,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "77",
+      "category": "bed"
+    },
+    {
+      "index": 1570,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "85",
+      "category": "sofa"
+    },
+    {
+      "index": 983,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "92",
+      "category": "bed"
+    },
+    {
+      "index": 697,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "4",
+      "category": "toilet"
+    },
+    {
+      "index": 1634,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "50",
+      "category": "chair"
+    },
+    {
+      "index": 1416,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "30",
+      "category": "toilet"
+    },
+    {
+      "index": 1214,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "26",
+      "category": "bed"
+    },
+    {
+      "index": 1313,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "26",
+      "category": "chair"
+    },
+    {
+      "index": 1062,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "72",
+      "category": "plant"
+    },
+    {
+      "index": 1939,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "58",
+      "category": "sofa"
+    },
+    {
+      "index": 218,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "20",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 318,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "21",
+      "category": "sofa"
+    },
+    {
+      "index": 17,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "17",
+      "category": "toilet"
+    },
+    {
+      "index": 478,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "82",
+      "category": "toilet"
+    },
+    {
+      "index": 169,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "70",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1783,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "1",
+      "category": "chair"
+    },
+    {
+      "index": 792,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "0",
+      "category": "bed"
+    },
+    {
+      "index": 1131,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "42",
+      "category": "sofa"
+    },
+    {
+      "index": 512,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "17",
+      "category": "chair"
+    },
+    {
+      "index": 1777,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "94",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 608,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "14",
+      "category": "bed"
+    },
+    {
+      "index": 1513,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "28",
+      "category": "chair"
+    },
+    {
+      "index": 973,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "82",
+      "category": "toilet"
+    },
+    {
+      "index": 710,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "17",
+      "category": "plant"
+    },
+    {
+      "index": 1625,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "41",
+      "category": "plant"
+    },
+    {
+      "index": 1481,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "95",
+      "category": "chair"
+    },
+    {
+      "index": 1266,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "78",
+      "category": "sofa"
+    },
+    {
+      "index": 1287,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "0",
+      "category": "sofa"
+    },
+    {
+      "index": 1025,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "35",
+      "category": "chair"
+    },
+    {
+      "index": 1987,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "106",
+      "category": "bed"
+    },
+    {
+      "index": 293,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "95",
+      "category": "sofa"
+    },
+    {
+      "index": 349,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "52",
+      "category": "bed"
+    },
+    {
+      "index": 41,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "41",
+      "category": "toilet"
+    },
+    {
+      "index": 461,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "65",
+      "category": "chair"
+    },
+    {
+      "index": 110,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "11",
+      "category": "bed"
+    },
+    {
+      "index": 1799,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "17",
+      "category": "toilet"
+    },
+    {
+      "index": 799,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "7",
+      "category": "bed"
+    },
+    {
+      "index": 1158,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "69",
+      "category": "bed"
+    },
+    {
+      "index": 524,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "29",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1778,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "95",
+      "category": "bed"
+    },
+    {
+      "index": 606,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "12",
+      "category": "chair"
+    },
+    {
+      "index": 1517,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "32",
+      "category": "toilet"
+    },
+    {
+      "index": 969,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "78",
+      "category": "chair"
+    },
+    {
+      "index": 756,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "63",
+      "category": "bed"
+    },
+    {
+      "index": 1590,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "6",
+      "category": "plant"
+    },
+    {
+      "index": 1434,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "48",
+      "category": "toilet"
+    },
+    {
+      "index": 1220,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "32",
+      "category": "chair"
+    },
+    {
+      "index": 1340,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "53",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1073,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "83",
+      "category": "chair"
+    },
+    {
+      "index": 1881,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "0",
+      "category": "toilet"
+    },
+    {
+      "index": 256,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "58",
+      "category": "sofa"
+    },
+    {
+      "index": 378,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "81",
+      "category": "chair"
+    },
+    {
+      "index": 5,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "5",
+      "category": "toilet"
+    },
+    {
+      "index": 444,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "48",
+      "category": "bed"
+    },
+    {
+      "index": 102,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "3",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1846,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "64",
+      "category": "chair"
+    },
+    {
+      "index": 821,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "29",
+      "category": "chair"
+    },
+    {
+      "index": 1108,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "19",
+      "category": "toilet"
+    },
+    {
+      "index": 570,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "75",
+      "category": "chair"
+    },
+    {
+      "index": 1701,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "18",
+      "category": "sofa"
+    },
+    {
+      "index": 626,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "32",
+      "category": "sofa"
+    },
+    {
+      "index": 1560,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "75",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 956,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "65",
+      "category": "chair"
+    },
+    {
+      "index": 776,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "83",
+      "category": "sofa"
+    },
+    {
+      "index": 1608,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "24",
+      "category": "sofa"
+    },
+    {
+      "index": 1437,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "51",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1258,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "70",
+      "category": "toilet"
+    },
+    {
+      "index": 1332,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "45",
+      "category": "sofa"
+    },
+    {
+      "index": 1035,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "45",
+      "category": "sofa"
+    },
+    {
+      "index": 1955,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "74",
+      "category": "chair"
+    },
+    {
+      "index": 249,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "51",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 362,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "65",
+      "category": "chair"
+    },
+    {
+      "index": 36,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "36",
+      "category": "chair"
+    },
+    {
+      "index": 458,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "62",
+      "category": "bed"
+    },
+    {
+      "index": 131,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "32",
+      "category": "chair"
+    },
+    {
+      "index": 1787,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "5",
+      "category": "plant"
+    },
+    {
+      "index": 884,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "92",
+      "category": "sofa"
+    },
+    {
+      "index": 1130,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "41",
+      "category": "chair"
+    },
+    {
+      "index": 495,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "0",
+      "category": "toilet"
+    },
+    {
+      "index": 1748,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "65",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 667,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "73",
+      "category": "bed"
+    },
+    {
+      "index": 1499,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "14",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 986,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "95",
+      "category": "chair"
+    },
+    {
+      "index": 719,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "26",
+      "category": "plant"
+    },
+    {
+      "index": 1673,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "89",
+      "category": "bed"
+    },
+    {
+      "index": 1430,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "44",
+      "category": "bed"
+    },
+    {
+      "index": 1235,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "47",
+      "category": "bed"
+    },
+    {
+      "index": 1331,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "44",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1042,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "52",
+      "category": "plant"
+    },
+    {
+      "index": 1931,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "50",
+      "category": "sofa"
+    },
+    {
+      "index": 253,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "55",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 336,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "39",
+      "category": "bed"
+    },
+    {
+      "index": 73,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "73",
+      "category": "toilet"
+    },
+    {
+      "index": 439,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "43",
+      "category": "chair"
+    },
+    {
+      "index": 152,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "53",
+      "category": "bed"
+    },
+    {
+      "index": 1872,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "90",
+      "category": "plant"
+    },
+    {
+      "index": 875,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "83",
+      "category": "sofa"
+    },
+    {
+      "index": 1133,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "44",
+      "category": "toilet"
+    },
+    {
+      "index": 498,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "3",
+      "category": "bed"
+    },
+    {
+      "index": 1734,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "51",
+      "category": "bed"
+    },
+    {
+      "index": 625,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "31",
+      "category": "chair"
+    },
+    {
+      "index": 1551,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "66",
+      "category": "toilet"
+    },
+    {
+      "index": 930,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "39",
+      "category": "toilet"
+    },
+    {
+      "index": 724,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "31",
+      "category": "sofa"
+    },
+    {
+      "index": 1602,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "18",
+      "category": "sofa"
+    },
+    {
+      "index": 1413,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "27",
+      "category": "toilet"
+    },
+    {
+      "index": 1217,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "29",
+      "category": "chair"
+    },
+    {
+      "index": 1348,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "61",
+      "category": "sofa"
+    },
+    {
+      "index": 1005,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "15",
+      "category": "toilet"
+    },
+    {
+      "index": 1973,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "92",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 273,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "75",
+      "category": "bed"
+    },
+    {
+      "index": 325,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "28",
+      "category": "chair"
+    },
+    {
+      "index": 14,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "14",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 470,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "74",
+      "category": "chair"
+    },
+    {
+      "index": 187,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "88",
+      "category": "toilet"
+    },
+    {
+      "index": 1829,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "47",
+      "category": "toilet"
+    },
+    {
+      "index": 876,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "84",
+      "category": "sofa"
+    },
+    {
+      "index": 1137,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "48",
+      "category": "toilet"
+    },
+    {
+      "index": 517,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "22",
+      "category": "bed"
+    },
+    {
+      "index": 1728,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "45",
+      "category": "chair"
+    },
+    {
+      "index": 659,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "65",
+      "category": "sofa"
+    },
+    {
+      "index": 1519,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "34",
+      "category": "bed"
+    },
+    {
+      "index": 900,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "9",
+      "category": "toilet"
+    },
+    {
+      "index": 717,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "24",
+      "category": "bed"
+    },
+    {
+      "index": 1669,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "85",
+      "category": "bed"
+    },
+    {
+      "index": 1391,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "5",
+      "category": "chair"
+    },
+    {
+      "index": 1283,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "95",
+      "category": "chair"
+    },
+    {
+      "index": 1342,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "55",
+      "category": "toilet"
+    },
+    {
+      "index": 1056,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "66",
+      "category": "chair"
+    },
+    {
+      "index": 1885,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "4",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 287,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "89",
+      "category": "bed"
+    },
+    {
+      "index": 359,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "62",
+      "category": "bed"
+    },
+    {
+      "index": 44,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "44",
+      "category": "toilet"
+    },
+    {
+      "index": 487,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "91",
+      "category": "sofa"
+    },
+    {
+      "index": 183,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "84",
+      "category": "chair"
+    },
+    {
+      "index": 1820,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "38",
+      "category": "toilet"
+    },
+    {
+      "index": 816,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "24",
+      "category": "bed"
+    },
+    {
+      "index": 1138,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "49",
+      "category": "toilet"
+    },
+    {
+      "index": 580,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "85",
+      "category": "toilet"
+    },
+    {
+      "index": 1697,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "14",
+      "category": "bed"
+    },
+    {
+      "index": 647,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "53",
+      "category": "bed"
+    },
+    {
+      "index": 1485,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "0",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 964,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "73",
+      "category": "chair"
+    },
+    {
+      "index": 714,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "21",
+      "category": "plant"
+    },
+    {
+      "index": 1615,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "31",
+      "category": "plant"
+    },
+    {
+      "index": 1484,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "98",
+      "category": "toilet"
+    },
+    {
+      "index": 1281,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "93",
+      "category": "bed"
+    },
+    {
+      "index": 1356,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "69",
+      "category": "chair"
+    },
+    {
+      "index": 1028,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "38",
+      "category": "chair"
+    },
+    {
+      "index": 1899,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "18",
+      "category": "bed"
+    },
+    {
+      "index": 284,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "86",
+      "category": "chair"
+    },
+    {
+      "index": 323,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "26",
+      "category": "toilet"
+    },
+    {
+      "index": 6,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "6",
+      "category": "toilet"
+    },
+    {
+      "index": 417,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "21",
+      "category": "bed"
+    },
+    {
+      "index": 165,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "66",
+      "category": "toilet"
+    },
+    {
+      "index": 1786,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "4",
+      "category": "toilet"
+    },
+    {
+      "index": 831,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "39",
+      "category": "chair"
+    },
+    {
+      "index": 1091,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "2",
+      "category": "bed"
+    },
+    {
+      "index": 518,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "23",
+      "category": "bed"
+    },
+    {
+      "index": 1746,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "63",
+      "category": "bed"
+    },
+    {
+      "index": 631,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "37",
+      "category": "bed"
+    },
+    {
+      "index": 1528,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "43",
+      "category": "toilet"
+    },
+    {
+      "index": 904,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "13",
+      "category": "toilet"
+    },
+    {
+      "index": 696,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "3",
+      "category": "plant"
+    },
+    {
+      "index": 1639,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "55",
+      "category": "toilet"
+    },
+    {
+      "index": 1460,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "74",
+      "category": "sofa"
+    },
+    {
+      "index": 1203,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "15",
+      "category": "toilet"
+    },
+    {
+      "index": 1307,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "20",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1046,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "56",
+      "category": "chair"
+    },
+    {
+      "index": 1909,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "28",
+      "category": "chair"
+    },
+    {
+      "index": 266,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "68",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 322,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "25",
+      "category": "toilet"
+    },
+    {
+      "index": 24,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "24",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 463,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "67",
+      "category": "sofa"
+    },
+    {
+      "index": 106,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "7",
+      "category": "chair"
+    },
+    {
+      "index": 1785,
+      "scene": "ziup5kvtCCR",
+      "scene_id": "data/scene_datasets/hm3d/val/00848-ziup5kvtCCR/ziup5kvtCCR.basis.glb",
+      "episode_id": "3",
+      "category": "bed"
+    },
+    {
+      "index": 1107,
+      "scene": "mL8ThkuaVTM",
+      "scene_id": "data/scene_datasets/hm3d/val/00820-mL8ThkuaVTM/mL8ThkuaVTM.basis.glb",
+      "episode_id": "18",
+      "category": "toilet"
+    },
+    {
+      "index": 1687,
+      "scene": "wcojb4TFT35",
+      "scene_id": "data/scene_datasets/hm3d/val/00802-wcojb4TFT35/wcojb4TFT35.basis.glb",
+      "episode_id": "4",
+      "category": "toilet"
+    },
+    {
+      "index": 855,
+      "scene": "XB4GS9ShBRE",
+      "scene_id": "data/scene_datasets/hm3d/val/00878-XB4GS9ShBRE/XB4GS9ShBRE.basis.glb",
+      "episode_id": "63",
+      "category": "chair"
+    },
+    {
+      "index": 957,
+      "scene": "bxsVRursffK",
+      "scene_id": "data/scene_datasets/hm3d/val/00873-bxsVRursffK/bxsVRursffK.basis.glb",
+      "episode_id": "66",
+      "category": "chair"
+    },
+    {
+      "index": 1539,
+      "scene": "qyAac8rV8Zk",
+      "scene_id": "data/scene_datasets/hm3d/val/00832-qyAac8rV8Zk/qyAac8rV8Zk.basis.glb",
+      "episode_id": "54",
+      "category": "sofa"
+    },
+    {
+      "index": 1222,
+      "scene": "mv2HUxq3B53",
+      "scene_id": "data/scene_datasets/hm3d/val/00876-mv2HUxq3B53/mv2HUxq3B53.basis.glb",
+      "episode_id": "34",
+      "category": "sofa"
+    },
+    {
+      "index": 1883,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "2",
+      "category": "toilet"
+    },
+    {
+      "index": 540,
+      "scene": "Nfvxx8J5NCo",
+      "scene_id": "data/scene_datasets/hm3d/val/00880-Nfvxx8J5NCo/Nfvxx8J5NCo.basis.glb",
+      "episode_id": "45",
+      "category": "chair"
+    },
+    {
+      "index": 1060,
+      "scene": "cvZr5TUy5C5",
+      "scene_id": "data/scene_datasets/hm3d/val/00891-cvZr5TUy5C5/cvZr5TUy5C5.basis.glb",
+      "episode_id": "70",
+      "category": "bed"
+    },
+    {
+      "index": 162,
+      "scene": "5cdEh9F2hJL",
+      "scene_id": "data/scene_datasets/hm3d/val/00853-5cdEh9F2hJL/5cdEh9F2hJL.basis.glb",
+      "episode_id": "63",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 239,
+      "scene": "6s7QHgap2fW",
+      "scene_id": "data/scene_datasets/hm3d/val/00890-6s7QHgap2fW/6s7QHgap2fW.basis.glb",
+      "episode_id": "41",
+      "category": "chair"
+    },
+    {
+      "index": 1478,
+      "scene": "q3zU7Yy5E5s",
+      "scene_id": "data/scene_datasets/hm3d/val/00835-q3zU7Yy5E5s/q3zU7Yy5E5s.basis.glb",
+      "episode_id": "92",
+      "category": "toilet"
+    },
+    {
+      "index": 744,
+      "scene": "TEEsavR23oF",
+      "scene_id": "data/scene_datasets/hm3d/val/00800-TEEsavR23oF/TEEsavR23oF.basis.glb",
+      "episode_id": "51",
+      "category": "sofa"
+    },
+    {
+      "index": 1898,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "17",
+      "category": "bed"
+    },
+    {
+      "index": 412,
+      "scene": "Dd4bFSTQ8gi",
+      "scene_id": "data/scene_datasets/hm3d/val/00824-Dd4bFSTQ8gi/Dd4bFSTQ8gi.basis.glb",
+      "episode_id": "16",
+      "category": "sofa"
+    },
+    {
+      "index": 1362,
+      "scene": "p53SfW6mjZe",
+      "scene_id": "data/scene_datasets/hm3d/val/00814-p53SfW6mjZe/p53SfW6mjZe.basis.glb",
+      "episode_id": "75",
+      "category": "sofa"
+    },
+    {
+      "index": 668,
+      "scene": "QaLdnwvtxbs",
+      "scene_id": "data/scene_datasets/hm3d/val/00829-QaLdnwvtxbs/QaLdnwvtxbs.basis.glb",
+      "episode_id": "74",
+      "category": "chair"
+    },
+    {
+      "index": 1919,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "38",
+      "category": "bed"
+    },
+    {
+      "index": 60,
+      "scene": "4ok3usBNeis",
+      "scene_id": "data/scene_datasets/hm3d/val/00877-4ok3usBNeis/4ok3usBNeis.basis.glb",
+      "episode_id": "60",
+      "category": "sofa"
+    },
+    {
+      "index": 1656,
+      "scene": "svBbv1Pavdk",
+      "scene_id": "data/scene_datasets/hm3d/val/00813-svBbv1Pavdk/svBbv1Pavdk.basis.glb",
+      "episode_id": "72",
+      "category": "tv_monitor"
+    },
+    {
+      "index": 1884,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "3",
+      "category": "toilet"
+    },
+    {
+      "index": 361,
+      "scene": "DYehNKdT76V",
+      "scene_id": "data/scene_datasets/hm3d/val/00843-DYehNKdT76V/DYehNKdT76V.basis.glb",
+      "episode_id": "64",
+      "category": "toilet"
+    },
+    {
+      "index": 1971,
+      "scene": "zt1RVoi7PcG",
+      "scene_id": "data/scene_datasets/hm3d/val/00839-zt1RVoi7PcG/zt1RVoi7PcG.basis.glb",
+      "episode_id": "90",
+      "category": "toilet"
+    }
+  ]
+}
