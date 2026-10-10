@@ -231,7 +231,7 @@ def _style(ax, plt):
     ax.set_axisbelow(True)
 
 
-def plot_stacked_composition(per_dataset, out_dir):
+def plot_stacked_composition(per_dataset, out_dir, title="ApexNav outcome composition by dataset"):
     """Headline chart: outcome composition per dataset, one stacked row each.
 
     Composition of a whole -> stacked bar. Horizontal so the dataset names and
@@ -271,7 +271,7 @@ def plot_stacked_composition(per_dataset, out_dir):
     ax.set_xlim(0, 100)
     ax.set_xlabel("% of episodes", color=INK_SECONDARY, fontsize=9)
     ax.xaxis.grid(True, color=GRID, linewidth=1)
-    ax.set_title("ApexNav outcome composition by dataset",
+    ax.set_title(title,
                  color=INK_PRIMARY, fontsize=13, fontweight="bold", loc="left", pad=14)
 
     handles = [plt.Rectangle((0, 0), 1, 1, color=CATEGORY_COLOR[c]) for c in APEXNAV_ORDER]
@@ -391,6 +391,10 @@ def main():
         help="Path to a record.txt plus the dataset label to tag it with. Repeatable.",
     )
     ap.add_argument("--out", required=True, help="Output directory")
+    # The rows are whatever --record labels say, not necessarily ApexNav runs
+    # (a human run beside the agent, for one).
+    ap.add_argument("--title", default="ApexNav outcome composition by dataset",
+                    help="title for outcome_composition.png")
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
@@ -432,7 +436,7 @@ def main():
         per_dataset[dataset] = {"fine": fine_rows, "coarse": coarse_rows, "n": len(rows)}
         plot_by_object(dataset, obj_rows, args.out)
 
-    plot_stacked_composition(per_dataset, args.out)
+    plot_stacked_composition(per_dataset, args.out, args.title)
     plot_fine_categories(per_dataset, args.out)
 
     if len(args.record) > 1:
