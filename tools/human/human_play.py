@@ -128,6 +128,7 @@ _phase("imports done (habitat, torch, hydra)")
 
 from basic_utils.record_episode.read_record import read_record
 from basic_utils.record_episode.write_record import write_record
+from basic_utils.record_episode.write_episode_row import write_episode_row
 from prettytable import PrettyTable
 
 # Browser key -> (habitat action, camera pitch delta). Mirrors the ACTION enum
@@ -193,7 +194,7 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
 
     if not candidate_positions:
         env.sim.set_agent_state(start_position, start_rotation)
-        return max_episode_steps
+        return max_episode_steps, False
 
     distances = [
         env.sim.geodesic_distance(start_position, [p], None)
@@ -209,18 +210,32 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
     # StepSPL 1.0 to any successful episode whose oracle was never computed.
     # Silently inflating the metric is worse than a slow request; the request
     # side is handled by REQUEST_TIMEOUT_S instead.
+    oracle_ok = False
     try:
         action = follower.get_next_action(nearest)
         while action != HabitatSimActions.stop and oracle_steps < max_episode_steps:
             env.sim.step(action)
             oracle_steps += 1
             action = follower.get_next_action(nearest)
+        # Flags the follower's silent STOP-on-error (truncated t*) without
+        # changing t* -- see the same block in habitat_evaluation.py.
+        if action == HabitatSimActions.stop:
+            remaining = env.sim.geodesic_distance(
+                env.sim.get_agent_state().position, [nearest], None
+            )
+            oracle_ok = remaining < success_distance
+            if not oracle_ok:
+                print(f"[StepSPL WARNING] follower stopped {remaining:.3f} m from its "
+                      f"goal after {oracle_steps} steps -- t* is truncated")
+        else:
+            print(f"[StepSPL WARNING] follower hit the {max_episode_steps}-step cap "
+                  "without arriving")
     except Exception as e:  # noqa: BLE001 -- same graceful degrade as the sweep
         print(f"[StepSPL WARNING] oracle rollout failed ({type(e).__name__}: {e})")
         oracle_steps = max_episode_steps
 
     env.sim.set_agent_state(start_position, start_rotation)
-    return oracle_steps
+    return oracle_steps, oracle_ok
 
 
 def is_on_same_floor(height, episode, ceiling_height=2.0):
@@ -399,6 +414,8 @@ class HumanSession:
 
         self.record_path = os.path.join(out_dir, "record.txt")
         self.continue_path = os.path.join(out_dir, "continue.txt")
+        # Per-episode t / t* / metrics (basic_utils/record_episode/write_episode_row.py)
+        self.episodes_path = os.path.join(out_dir, "episodes.csv")
 
         # Resume exactly the way habitat_evaluation.py does: continue.txt's newest
         # block carries the cumulative totals, and No.N tells us N episodes are
@@ -517,7 +534,7 @@ class HumanSession:
         # d_start for SoftStepSPL, read at reset exactly as habitat_evaluation.py
         # does (and as habitat's SoftSPL does internally).
         self.start_distance_to_goal = self.env.get_metrics()["distance_to_goal"]
-        self.oracle_steps = compute_oracle_step_count(
+        self.oracle_steps, self.oracle_ok = compute_oracle_step_count(
             self.env, self.success_distance, self.max_steps
         )
         # One geodesic_distance call per goal view point, then a step-by-step
@@ -735,6 +752,24 @@ class HumanSession:
                 self.episode.scene_id, self.episode.episode_id, table, self.result,
                 self.target, self.num_total, self.cum_seconds, path,
             )
+        # After continue.txt, same ordering as habitat_evaluation.py.
+        write_episode_row(self.episodes_path, {
+            "episode_no": self.num_total,
+            "scene_id": self.episode.scene_id,
+            "episode_id": self.episode.episode_id,
+            "category": self.target,
+            "result": self.result,
+            "success": int(m["success"]),
+            "steps": self.steps,
+            "oracle_steps": self.oracle_steps,
+            "oracle_ok": int(self.oracle_ok),
+            "spl": m["spl"],
+            "soft_spl": m["soft_spl"],
+            "step_spl": m["step_spl"],
+            "soft_step_spl": m["soft_step_spl"],
+            "start_distance_to_goal": self.start_distance_to_goal,
+            "distance_to_goal": m["distance_to_goal"],
+        })
 
     def next_episode(self):
         """Advance to the next playlist entry (no-op if the current one is live)."""

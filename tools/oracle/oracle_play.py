@@ -24,7 +24,7 @@ says our navmesh reproduces theirs on the route that matters.
 TWO oracles run, because they fail for different reasons and the difference is
 diagnostic:
 
-  planner  -- A* over the discrete state space (x cell, z cell, heading), with
+  planner  -- A* over the discrete state space (x, y, z cell, heading), with
               agent.act() transitions on the real navmesh, so collisions and
               allow_sliding:false are honoured. Optimal in ACTION COUNT, and
               complete: "no plan" means no action sequence exists within the
@@ -211,7 +211,7 @@ def astar_plan(sim, start_state, goal_positions, success_distance, forward_step,
     stuck at 7.2 m for 60 steps with an 11.9 m path clearly available. Any
     distance-descent rule has that failure; a search does not.
 
-    State = (x cell, z cell, heading index). Transitions are agent.act() on the
+    State = (x, y, z cell, heading index). Transitions are agent.act() on the
     real navmesh, so collisions and no-sliding are honoured exactly as env.step()
     honours them -- act() just skips rendering, which is what makes 10^5
     expansions affordable. g = actions taken, h = geodesic distance / step size,
@@ -232,9 +232,16 @@ def astar_plan(sim, start_state, goal_positions, success_distance, forward_step,
         st.rotation = rot
         agent.set_state(st, reset_sensors=False)
 
+    # Height is part of the state. Without it, a cell on an upper floor or
+    # staircase merges with the cell directly below it, and whichever was reached
+    # first prunes the other -- hm3dv1 idx 1553 (two floors) went
+    # exhausted_search_space at 172k expansions with (x, z, heading), and solved
+    # in 73 actions / 49.6k expansions with y added (2026-10-10). 0.1 m bins:
+    # coarse enough not to split one floor's cell on navmesh height noise, fine
+    # enough that a stair flight never shares a bin with the floor under it.
     def key_of(pos, rot):
-        return (int(round(float(pos[0]) / grid)), int(round(float(pos[2]) / grid)),
-                _heading_index(rot, n_headings))
+        return (int(round(float(pos[0]) / grid)), int(round(float(pos[1]) / 0.1)),
+                int(round(float(pos[2]) / grid)), _heading_index(rot, n_headings))
 
     dist_cache = {}
     start_key = key_of(start_state.position, start_state.rotation)

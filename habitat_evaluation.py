@@ -84,6 +84,7 @@ from basic_utils.object_point_cloud_utils.object_point_cloud import (
     get_object_point_cloud,
 )
 from basic_utils.record_episode.read_record import read_record
+from basic_utils.record_episode.write_episode_row import write_episode_row
 from basic_utils.record_episode.write_record import write_record
 from habitat2ros import habitat_publisher
 from llm.answer_reader.answer_reader import read_answer
@@ -198,6 +199,10 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
     and reuses it (ignoring new goal points) on later calls with that same
     episode object -- so the per-goal argmin below deliberately passes
     episode=None to bypass that cache instead of reusing it across goals.
+
+    Returns (oracle_steps, oracle_ok). oracle_ok is False whenever the rollout did
+    not genuinely arrive (no view points, step cap, exception, or the follower's
+    silent STOP-on-error) -- i.e. whenever oracle_steps is not a real t*.
     """
     episode = env.current_episode
     start_position = episode.start_position
@@ -267,7 +272,7 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
             "view_points -- skipping oracle rollout, treating as max_episode_steps"
         )
         env.sim.set_agent_state(start_position, start_rotation)
-        return max_episode_steps
+        return max_episode_steps, False
 
     distances = [
         env.sim.geodesic_distance(start_position, [position], None)
@@ -280,6 +285,7 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
 
     follower = ShortestPathFollower(env.sim, success_distance, False)
     oracle_steps = 0
+    oracle_ok = False
     try:
         action = follower.get_next_action(nearest_goal_position)
         print(f"[StepSPL DEBUG] first action from follower={action}, HabitatSimActions.stop={HabitatSimActions.stop}")
@@ -287,6 +293,30 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
             env.sim.step(action)
             oracle_steps += 1
             action = follower.get_next_action(nearest_goal_position)
+        # The third positional arg above is return_one_hot, so stop_on_error is
+        # left at its default True: the follower turns a GreedyFollowerError
+        # (unreachable goal, or every candidate move collides) into a plain STOP,
+        # so the except below almost never fires and a stuck rollout returns a
+        # TRUNCATED t* that looks exactly like an arrival. Kept as-is so t* is
+        # unchanged against every run so far (2026-10-10); this only flags it.
+        # Same test the follower applies itself (GreedyFollower.cpp: geodesic <
+        # goal radius), so a genuine arrival always passes.
+        if action == HabitatSimActions.stop:
+            remaining = env.sim.geodesic_distance(
+                env.sim.get_agent_state().position, [nearest_goal_position], None
+            )
+            oracle_ok = remaining < success_distance
+            if not oracle_ok:
+                print(
+                    f"[StepSPL WARNING] episode {episode.episode_id} follower "
+                    f"stopped {remaining:.3f} m from its goal after {oracle_steps} "
+                    "steps -- t* is truncated"
+                )
+        else:
+            print(
+                f"[StepSPL WARNING] episode {episode.episode_id} follower hit "
+                f"the {max_episode_steps}-step cap without arriving"
+            )
     except Exception as e:
         print(
             f"[StepSPL WARNING] episode {episode.episode_id} oracle rollout "
@@ -295,7 +325,7 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
         oracle_steps = max_episode_steps
 
     env.sim.set_agent_state(start_position, start_rotation)
-    return oracle_steps
+    return oracle_steps, oracle_ok
 
 
 def step_spl_overlay_lines(info, oracle_step_count, count_steps):
@@ -386,6 +416,8 @@ def main(cfg: DictConfig) -> None:
     need_video = cfg.need_video
     record_file_path = os.path.join(video_output_path, cfg.record_file_name)
     continue_path = os.path.join(video_output_path, cfg.continue_file_name)
+    # Per-episode t / t* / metrics (basic_utils/record_episode/write_episode_row.py)
+    episodes_path = os.path.join(video_output_path, "episodes.csv")
     max_episode_steps = cfg.habitat.environment.max_episode_steps
     success_distance = cfg.habitat.task.measurements.success.success_distance
 
@@ -513,7 +545,7 @@ def main(cfg: DictConfig) -> None:
         # (DistanceToGoal at reset). Read before the oracle rollout for clarity;
         # that rollout uses raw sim.step() so it would not move this value anyway.
         start_distance_to_goal = env.get_metrics()["distance_to_goal"]
-        oracle_step_count = compute_oracle_step_count(
+        oracle_step_count, oracle_ok = compute_oracle_step_count(
             env, success_distance, max_episode_steps
         )
         observations["camera_pitch"] = camera_pitch
@@ -835,6 +867,29 @@ def main(cfg: DictConfig) -> None:
             num_total,
             time_spend,
             continue_path,
+        )
+
+        # Written after continue.txt, so a crash in between drops this row rather
+        # than duplicating it on resume.
+        write_episode_row(
+            episodes_path,
+            {
+                "episode_no": num_total,
+                "scene_id": scene_id,
+                "episode_id": episode_id,
+                "category": env.current_episode.object_category,
+                "result": result_text,
+                "success": int(success),
+                "steps": count_steps,
+                "oracle_steps": oracle_step_count,
+                "oracle_ok": int(oracle_ok),
+                "spl": spl,
+                "soft_spl": soft_spl,
+                "step_spl": step_spl,
+                "soft_step_spl": soft_step_spl,
+                "start_distance_to_goal": start_distance_to_goal,
+                "distance_to_goal": distance_to_goal,
+            },
         )
 
         # Count files in each result category folder
