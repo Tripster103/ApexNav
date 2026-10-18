@@ -24,7 +24,7 @@ out in the same No. order, so No.N is the same episode on both sides.
 Checks before writing anything:
   * each run's episodes are in its source playlist's play order (the source is
     the path human_play.py pinned in the run's playlist.json);
-  * all runs share one metric set;
+  * all runs share one metric set (--common-metrics: keep the intersection);
   * no episode appears twice across runs (by scene+episode id AND by index).
 
     PY=/scratch2/ml20/btripcon/FYP/conda/envs/apexnav/bin/python
@@ -85,6 +85,9 @@ def main():
     p.add_argument("--out-dir", help="parent dir for the output (default: the first run's parent)")
     p.add_argument("--force", action="store_true", help="overwrite an existing output folder")
     p.add_argument("--dry-run", action="store_true", help="print the summary, write nothing")
+    p.add_argument("--common-metrics", action="store_true",
+                   help="keep only metric rows present in every run (e.g. a run played "
+                        "before SoftStepSPL existed) instead of refusing to merge")
     args = p.parse_args()
 
     runs = [os.path.abspath(r.rstrip("/")) for r in args.runs]
@@ -100,7 +103,12 @@ def main():
         if metric_names is None:
             metric_names = names
         elif names != metric_names:
-            sys.exit(f"{part}: metric rows {names} differ from {metric_names}")
+            if not args.common_metrics:
+                sys.exit(f"{part}: metric rows {names} differ from {metric_names} "
+                         "-- pass --common-metrics to keep only the shared ones")
+            dropped = [m for m in metric_names + names if m not in metric_names or m not in names]
+            print(f"  {part}: dropping metrics not in every run: {sorted(set(dropped))}")
+            metric_names = [m for m in metric_names if m in names]
         ds = (source.get("source") or {}).get("dataset")
         if dataset is None:
             dataset, split = ds, pin.get("split")
