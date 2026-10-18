@@ -591,8 +591,14 @@ class HumanSession:
         #
         # Nothing scored reads this image -- it is display only, and the metrics
         # come off env.get_metrics() against the sim state.
+        #
+        # 2026-10-18: switched to JPEG q75 mid mp3d_random450. mp3d frames are
+        # 640x480 with noisy scanned textures, so lossless WebP came out at
+        # 325 KB (~370 KB as base64 JSON) per keypress and the tunnel made every
+        # step lag. JPEG q75 is ~50 KB and ~1.3 ms to encode. Fidelity traded
+        # for latency deliberately; note it in the write-up.
         rgb = np.asarray(img, dtype=np.uint8)[..., :3]  # drop alpha if present
-        Image.fromarray(rgb).save(buf, format="WEBP", lossless=True, method=0)
+        Image.fromarray(rgb).save(buf, format="JPEG", quality=75)
         return base64.b64encode(buf.getvalue()).decode("ascii")
 
     def state(self):
@@ -820,7 +826,7 @@ function paint(s){
       'you can close this tab.</p>';
     return;
   }
-  document.getElementById('view').src='data:image/webp;base64,'+s.frame;
+  document.getElementById('view').src='data:image/jpeg;base64,'+s.frame;
   document.getElementById('target').textContent=s.target;
   document.getElementById('steps').textContent=s.steps+' / '+s.max_steps;
   document.getElementById('scene').textContent=s.scene;
@@ -860,23 +866,29 @@ async function resync(){
   try{ paint(await (await fetch('/state')).json()); }
   catch(e){ document.getElementById('scene').textContent='reconnecting...'; }
 }
+// One-slot buffer: a key pressed while a step is in flight is sent as soon as
+// that step returns, instead of being dropped. Latest press wins, so holding a
+// key overshoots by at most one step. Cleared on error/finish so a buffered key
+// never lands on the next episode.
+let pending=null;
 async function send(k){
-  if(busy) return; busy=true;
+  if(busy){ pending=k; return; } busy=true;
   try{
     const r=await fetch('/act',{method:'POST',headers:{'Content-Type':'application/json'},
                                body:JSON.stringify({key:k})});
     if(!r.ok) throw new Error(r.status);
     paint(await r.json());
-  } catch(e){ await resync(); } finally { busy=false; }
+  } catch(e){ pending=null; await resync(); } finally { busy=false; }
+  if(pending!==null){ const p=pending; pending=null; if(!over) send(p); }
 }
 async function next(){
-  busy=true;
+  busy=true; pending=null;
   try{
     document.getElementById('done').style.display='none'; over=false;
     const r=await fetch('/next',{method:'POST'});
     if(!r.ok) throw new Error(r.status);
     paint(await r.json());
-  } catch(e){ await resync(); } finally { busy=false; }
+  } catch(e){ await resync(); } finally { busy=false; pending=null; }
 }
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
