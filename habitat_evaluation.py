@@ -328,6 +328,32 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
     return oracle_steps, oracle_ok
 
 
+def agent_pose(env, action):
+    """{a, p, r}: the action just taken (None at reset), the agent position and
+    its rotation quaternion [x, y, z, w], in habitat world coordinates."""
+    s = env.sim.get_agent_state()
+    r = s.rotation
+    return {
+        "a": None if action is None else str(action),
+        "p": [float(v) for v in s.position],
+        "r": [float(r.x), float(r.y), float(r.z), float(r.w)],
+    }
+
+
+def write_trajectory(path, episode, trajectory, result, steps):
+    """Dump one episode's pose log for tools/viz/render_trajectories.py."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as fh:
+        json.dump({
+            "scene_id": episode.scene_id,
+            "episode_id": str(episode.episode_id),
+            "category": episode.object_category,
+            "result": result,
+            "steps": steps,
+            "poses": trajectory,
+        }, fh)
+
+
 def step_spl_overlay_lines(info, oracle_step_count, count_steps):
     """Extra top-left overlay lines for StepSPL, for overlay_frame()'s `additional`.
 
@@ -548,6 +574,9 @@ def main(cfg: DictConfig) -> None:
         oracle_step_count, oracle_ok = compute_oracle_step_count(
             env, success_distance, max_episode_steps
         )
+        # Per-step pose log for trajectory figures (single-episode runs only).
+        # Taken after the oracle rollout, which restores the start pose.
+        trajectory = [agent_pose(env, None)] if flag_once else None
         observations["camera_pitch"] = camera_pitch
         msg_observations = deepcopy(observations)
         del observations["camera_pitch"]
@@ -644,6 +673,8 @@ def main(cfg: DictConfig) -> None:
             publish_int32(state_pub, HABITAT_STATE.ACTION_EXEC)
 
             observations = env.step(action)
+            if trajectory is not None:
+                trajectory.append(agent_pose(env, action))
 
             # Calculate ITM cosine similarity score
             cosine = get_itm_message_cosine(observations["rgb"], label, room)
@@ -816,6 +847,11 @@ def main(cfg: DictConfig) -> None:
                 vis_frames, img2video_output_path, video_name, fps=6, quality=9
             )
         vis_frames.clear()
+        if trajectory is not None:
+            write_trajectory(
+                os.path.join(img2video_output_path, f"{video_name}_traj.json"),
+                env.current_episode, trajectory, result_text, count_steps,
+            )
 
         # Display average performance metrics
         table1 = PrettyTable(["Metric", "Average"])

@@ -238,6 +238,18 @@ def compute_oracle_step_count(env, success_distance, max_episode_steps):
     return oracle_steps, oracle_ok
 
 
+def agent_pose(env, action):
+    """{a, p, r}: the action just taken (None at reset), the agent position and
+    its rotation quaternion [x, y, z, w]. Same as habitat_evaluation.agent_pose."""
+    s = env.sim.get_agent_state()
+    r = s.rotation
+    return {
+        "a": action,
+        "p": [float(v) for v in s.position],
+        "r": [float(r.x), float(r.y), float(r.z), float(r.w)],
+    }
+
+
 def is_on_same_floor(height, episode, ceiling_height=2.0):
     """Same one-sided 2 m window failure_check.py uses -- see
     docs/ApexNav_Failure_Categories.md for why this is not a reachability test."""
@@ -547,6 +559,10 @@ class HumanSession:
         )
         self.episode = self.env.current_episode
         self.target = self.episode.object_category
+        # Per-step pose log for trajectory figures, taken after the oracle
+        # rollout (which restores the start pose). Same format as
+        # habitat_evaluation.py's single-episode _traj.json.
+        self.trajectory = [agent_pose(self.env, None)]
         self.steps = 0
         self.camera_pitch = 0.0
         self.pass_object = False
@@ -631,10 +647,12 @@ class HumanSession:
         if name == "stop":
             self.obs = self.env.step(HabitatSimActions.stop)
             self.steps += 1
+            self.trajectory.append(agent_pose(self.env, name))
             return self._finish()
 
         self.obs = self.env.step(getattr(HabitatSimActions, name))
         self.steps += 1
+        self.trajectory.append(agent_pose(self.env, name))
         self.camera_pitch += pitch_delta
 
         info = self.env.get_metrics()
@@ -776,6 +794,22 @@ class HumanSession:
             "start_distance_to_goal": self.start_distance_to_goal,
             "distance_to_goal": m["distance_to_goal"],
         })
+        traj_path = os.path.join(
+            self.out_dir, "trajectories",
+            f"{self.num_total:03d}_{os.path.basename(self.episode.scene_id)}"
+            f"_{self.episode.episode_id}.json",
+        )
+        os.makedirs(os.path.dirname(traj_path), exist_ok=True)
+        with open(traj_path, "w") as fh:
+            json.dump({
+                "scene_id": self.episode.scene_id,
+                "episode_id": str(self.episode.episode_id),
+                "epi_index": self.playlist[self.position],
+                "category": self.target,
+                "result": self.result,
+                "steps": self.steps,
+                "poses": self.trajectory,
+            }, fh)
 
     def next_episode(self):
         """Advance to the next playlist entry (no-op if the current one is live)."""
